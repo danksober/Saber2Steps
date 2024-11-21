@@ -25,5 +25,5 @@ yarn build
 Preview the production build locally:
 
 ```bash
-pnpm preview
+yarn preview
 ```
