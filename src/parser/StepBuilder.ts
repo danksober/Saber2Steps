@@ -93,7 +93,7 @@ export class StepBuilder {
           if (i === randomPosition) {
             notes.push(1);
           }
-            notes.push(0);
+          notes.push(0);
         }
         measure.push(notes);
       } else {

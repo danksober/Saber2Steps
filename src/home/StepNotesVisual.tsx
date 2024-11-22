@@ -35,25 +35,59 @@ const MeasureContainer = ({ measure }: { measure: Measure }) => {
       </BeatContainer>
       <NotesWrapper>
         {measure.map((note, index) => (
-          <Note key={index} note={note} height={`${(1 / noteSize) * 100}%`} />
+          <Note
+            key={index}
+            note={note}
+            index={index}
+            height={`${(1 / noteSize) * 100}%`}
+            noteSize={noteSize}
+          />
         ))}
       </NotesWrapper>
     </StyledMeasureContainer>
   );
 };
 
+const COLORS = {
+  4: 'red',
+  8: 'blue',
+  16: 'yellow',
+  32: 'green',
+  64: 'purple',
+};
+
+const getNoteColor = (index: number, noteSize: number) => {
+  // Loop through the colorMap keys in descending order
+  const fraction = index / noteSize;
+
+  for (const divisor of Object.keys(COLORS)) {
+    const numDivisor = parseInt(divisor);
+
+    if (noteSize >= numDivisor && fraction % (1 / numDivisor) === 0) {
+      return (COLORS as any)[numDivisor]; // Return the corresponding color from the map
+    }
+  }
+  return 'gray'; // Default color if no condition is met
+};
+
 interface NoteProps {
   note: number[];
   height: string;
+  noteSize: number;
+  index: number;
 }
 
-const Note = ({ note, height }: NoteProps) => {
-  return <StyledNote height={height}>{
-    note.map((position, index) => <StyledNotePosition key={index}>
-        {position ? '*' : <></>}
-    </StyledNotePosition>)
-
-  }</StyledNote>;
+const Note = ({ note, height, noteSize, index }: NoteProps) => {
+  const color = getNoteColor(index, noteSize);
+  return (
+    <StyledNote height={height}>
+      {note.map((position, index) => (
+        <StyledNotePosition key={index}>
+          {position ? <span style={{ color: color }}>*</span> : <></>}
+        </StyledNotePosition>
+      ))}
+    </StyledNote>
+  );
 };
 
 interface BeatProps {
