@@ -87,12 +87,15 @@ export class StepBuilder {
     while (start < (index + 1) * DEFAULT_BEATS_PER_MEASURE) {
       const possibleNotes = mapNotes.filter((note) => note._time === start);
       if (possibleNotes.length) {
-        measure.push([
-          Math.round(Math.random()),
-          Math.round(Math.random()),
-          Math.round(Math.random()),
-          Math.round(Math.random()),
-        ]);
+        const randomPosition = possibleNotes[0]._lineIndex;
+        const notes = [];
+        for (let i = 0; i < 4; i++) {
+          if (i === randomPosition) {
+            notes.push(1);
+          }
+            notes.push(0);
+        }
+        measure.push(notes);
       } else {
         measure.push([0, 0, 0, 0]);
       }

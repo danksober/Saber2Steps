@@ -48,7 +48,12 @@ interface NoteProps {
 }
 
 const Note = ({ note, height }: NoteProps) => {
-  return <StyledNote height={height}>1</StyledNote>;
+  return <StyledNote height={height}>{
+    note.map((position, index) => <StyledNotePosition key={index}>
+        {position ? '*' : <></>}
+    </StyledNotePosition>)
+
+  }</StyledNote>;
 };
 
 interface BeatProps {
@@ -75,7 +80,7 @@ const StyledNote = styled.div<StyledNoteProps>`
 const Beat = styled.div<BeatProps>`
     padding-bottom: ${PADDING_PER_BEAT};
     width: 100%;
-    border-top: ${(props) => (!props.ishighlighted ? `1px solid ${awsui.colorTextButtonNormalDisabled}` : `1.5px solid ${awsui.colorTextBodyDefault}`)};
+    border-top: ${(props) => (props.ishighlighted === 'false' ? `1px solid ${awsui.colorTextButtonNormalDisabled}` : `1.5px solid ${awsui.colorTextBodyDefault}`)};
 `;
 
 const StyledMeasureContainer = styled.div`
@@ -85,6 +90,11 @@ const StyledMeasureContainer = styled.div`
 
 const BeatContainer = styled.div`
     
+`;
+
+const StyledNotePosition = styled.div`
+    width: 25%;
+    display: inline-block;
 `;
 
 const NotesContainer = styled.div`
