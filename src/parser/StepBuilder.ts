@@ -4,7 +4,7 @@ import { Chart, Measure, StepChart } from '../types/stepTypes';
 type StepBuilderConfig = Omit<StepChart, 'charts'> & {
   mapNotes: ColorNote[] | NoteV2[];
   difficultyName: string;
-  meter: string,
+  meter: string;
 };
 
 const DEFAULT_BEATS_PER_MEASURE = 4;
@@ -87,7 +87,12 @@ export class StepBuilder {
     while (start < (index + 1) * DEFAULT_BEATS_PER_MEASURE) {
       const possibleNotes = mapNotes.filter((note) => note._time === start);
       if (possibleNotes.length) {
-        measure.push([0, 1, 0, 0]);
+        measure.push([
+          Math.round(Math.random()),
+          Math.round(Math.random()),
+          Math.round(Math.random()),
+          Math.round(Math.random()),
+        ]);
       } else {
         measure.push([0, 0, 0, 0]);
       }
@@ -101,7 +106,9 @@ export class StepBuilder {
     let numberOfMeasures = 0;
     const notesByMeasure = notes.reduce(
       (
-        acc: { [measure: number]: { notes: NoteV2[]; beatsPerMeasure?: number } },
+        acc: {
+          [measure: number]: { notes: NoteV2[]; beatsPerMeasure?: number };
+        },
         cur: NoteV2,
       ) => {
         const measureIndex = Math.floor(cur._time / DEFAULT_BEATS_PER_MEASURE);
@@ -146,9 +153,14 @@ export class StepBuilder {
           .map(() => new Array(4).fill(0));
       } else {
         const currentMeasure = notesByMeasure[i];
-        const beatsPerMeasure = currentMeasure.beatsPerMeasure || DEFAULT_BEATS_PER_MEASURE;
+        const beatsPerMeasure =
+          currentMeasure.beatsPerMeasure || DEFAULT_BEATS_PER_MEASURE;
         const mapNotes = currentMeasure.notes;
-        stepMeasures[i] = this.buildStepNotesForMeasure(beatsPerMeasure, mapNotes, i);
+        stepMeasures[i] = this.buildStepNotesForMeasure(
+          beatsPerMeasure,
+          mapNotes,
+          i,
+        );
       }
     }
 

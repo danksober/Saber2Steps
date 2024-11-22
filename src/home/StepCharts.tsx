@@ -7,8 +7,9 @@ import {
   TabsProps,
 } from '@cloudscape-design/components';
 import { useAtomValue } from 'jotai';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { stepChartAtom } from './formState';
+import StepChartDetails from './StepChartDetails';
 
 export default function StepCharts() {
   const stepChart = useAtomValue(stepChartAtom);
@@ -21,6 +22,7 @@ export default function StepCharts() {
   const tabs: TabsProps.Tab[] = stepChart.charts.map((chart) => ({
     id: chart.name,
     label: chart.name,
+    content: <StepChartDetails chart={chart} />,
   }));
   return (
     <SpaceBetween direction="vertical" size="l">
@@ -75,7 +77,14 @@ export default function StepCharts() {
           ]}
         />
       </Container>
-      {stepChart.charts?.length && <Tabs variant="default" tabs={tabs} activeTabId={tabId} onChange={(e) => setTabId(e.detail.activeTabId)}></Tabs>}
+      {stepChart.charts?.length && (
+        <Tabs
+          variant="default"
+          tabs={tabs}
+          activeTabId={tabId}
+          onChange={(e) => setTabId(e.detail.activeTabId)}
+        ></Tabs>
+      )}
     </SpaceBetween>
   );
 }

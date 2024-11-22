@@ -6,7 +6,7 @@ const App = () => {
   useEffect(() => {
     document.body.classList.add('awsui-dark-mode');
   }, []);
-  
+
   return (
     <AppLayout contentType="form" content={<Home />} toolsHide navigationHide />
   );

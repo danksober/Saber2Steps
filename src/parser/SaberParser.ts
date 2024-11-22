@@ -27,7 +27,9 @@ export class SaberParser {
   mapFiles: File[];
 
   private infoData: MapInfoDataV2 | undefined = undefined;
-  private chartData: ((MapDataV3 | MapDataV2) & {name: string})[] | undefined = undefined;
+  private chartData:
+    | ((MapDataV3 | MapDataV2) & { name: string })[]
+    | undefined = undefined;
 
   constructor(infoFile: File, mapFiles: File[]) {
     this.infoFile = infoFile;
@@ -42,7 +44,7 @@ export class SaberParser {
         return {
           data,
           name: file.name,
-        }
+        };
       }),
     )) as any;
   }
@@ -51,7 +53,7 @@ export class SaberParser {
     if (!this.infoData || !this.chartData) {
       throw new Error('No data');
     }
-    const charts = this.chartData.map(({data, name}: any) => {
+    const charts = this.chartData.map(({ data, name }: any) => {
       return this.parseMapFile(data, name);
     });
     const stepChart: StepChart = { ...this.getStepChartConfig(), charts };
