@@ -1,6 +1,7 @@
 import { Measure } from '../types/stepTypes';
 import styled from 'styled-components';
 import * as awsui from '@cloudscape-design/design-tokens';
+import { Icon } from '@cloudscape-design/components';
 
 interface StepNotesVisualProps {
   measures: Measure[];
@@ -83,10 +84,33 @@ const Note = ({ note, height, noteSize, index }: NoteProps) => {
     <StyledNote height={height}>
       {note.map((position, index) => (
         <StyledNotePosition key={index}>
-          {position ? <span style={{ color: color }}>*</span> : <></>}
+          {position ? <NoteArrow position={index} color={color} /> : <></>}
         </StyledNotePosition>
       ))}
     </StyledNote>
+  );
+};
+
+const ARROW_ROTATE_DEGS = {
+  0: 0,
+  1: 270,
+  2: 90,
+  3: 180,
+};
+
+const NoteArrow = ({
+  position,
+  color,
+}: { position: number; color: string }) => {
+  return (
+    <div
+      style={{
+        color,
+        transform: `rotate(${(ARROW_ROTATE_DEGS as any)[position]}deg)`,
+      }}
+    >
+      <Icon size="big" name="arrow-left" />
+    </div>
   );
 };
 
@@ -108,7 +132,7 @@ interface StyledNoteProps {
 const StyledNote = styled.div<StyledNoteProps>`
     height: ${(props) => props.height};
     position: relative;
-    top: -8px;
+    top: -12px;
 `;
 
 const Beat = styled.div<BeatProps>`
@@ -146,7 +170,4 @@ const ChartVisualContainer = styled.div`
     overflow: auto;
     display: flex;
     justify-content: center;
-    &::-webkit-scrollbar {
-    display: none;
-  }
 `;
