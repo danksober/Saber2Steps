@@ -79,6 +79,8 @@ export class SaberParser {
       subtitle: this.infoData?._songSubName,
       artist: this.infoData?._songAuthorName,
       credit: this.infoData?._levelAuthorName,
+      sampleStart: (this.infoData?._previewStartTime || '').toString(),
+      sampleLength: (this.infoData?._previewDuration || '').toString(),
       offset: this.infoData?._songTimeOffset
         ? this.infoData._songTimeOffset.toString()
         : '0',

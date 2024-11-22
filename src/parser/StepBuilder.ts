@@ -7,9 +7,8 @@ type StepBuilderConfig = Omit<StepChart, 'charts'> & {
   meter: string,
 };
 
-const BEATS_PER_MEASURE = 4;
-const MAX_ACCURACY = 16;
-const MIN_ACCURACY = 4;
+const DEFAULT_BEATS_PER_MEASURE = 4;
+const MAX_BEATS_PER_MEASURE = 16;
 
 export class StepBuilder {
   config: StepBuilderConfig;
@@ -23,7 +22,7 @@ export class StepBuilder {
     let res = 0;
     while (res <= 1) {
       this._fractions.push(res);
-      res += (1 / MAX_ACCURACY) * 4;
+      res += (1 / MAX_BEATS_PER_MEASURE) * 4;
     }
   }
 
@@ -55,13 +54,13 @@ export class StepBuilder {
     return chart;
   }
 
-  private getAccuracyForFraction(fraction: number) {
-    let accuracy = 4;
+  private getBeatsPerMeasureForFraction(fraction: number) {
+    let beatsPerMeasure = 4;
     while (fraction !== Math.floor(fraction)) {
       fraction *= 2;
-      accuracy *= 2;
+      beatsPerMeasure *= 2;
     }
-    return accuracy;
+    return beatsPerMeasure;
   }
 
   private getNeariestFraction(fraction: number) {
@@ -78,14 +77,14 @@ export class StepBuilder {
   }
 
   private buildStepNotesForMeasure(
-    accuracy: number,
+    beatsPerMeasure: number,
     mapNotes: NoteV2[],
     index: number,
   ) {
-    const fraction = 4 / accuracy;
-    let start = index * 4;
+    const fraction = DEFAULT_BEATS_PER_MEASURE / beatsPerMeasure;
+    let start = index * DEFAULT_BEATS_PER_MEASURE;
     const measure: Measure = [];
-    while (start < (index + 1) * 4) {
+    while (start < (index + 1) * DEFAULT_BEATS_PER_MEASURE) {
       const possibleNotes = mapNotes.filter((note) => note._time === start);
       if (possibleNotes.length) {
         measure.push([0, 1, 0, 0]);
@@ -102,10 +101,10 @@ export class StepBuilder {
     let numberOfMeasures = 0;
     const notesByMeasure = notes.reduce(
       (
-        acc: { [measure: number]: { notes: NoteV2[]; accuracy?: number } },
+        acc: { [measure: number]: { notes: NoteV2[]; beatsPerMeasure?: number } },
         cur: NoteV2,
       ) => {
-        const measureIndex = Math.floor(cur._time / BEATS_PER_MEASURE);
+        const measureIndex = Math.floor(cur._time / DEFAULT_BEATS_PER_MEASURE);
         numberOfMeasures = Math.max(measureIndex, numberOfMeasures);
         if (acc[measureIndex]?.notes) {
           acc[measureIndex].notes.push(cur);
@@ -120,36 +119,36 @@ export class StepBuilder {
     );
 
     for (const byMeasure of Object.values(notesByMeasure)) {
-      let accuracy = MIN_ACCURACY;
+      let beatsPerMeasure = DEFAULT_BEATS_PER_MEASURE;
       for (const note of byMeasure.notes || []) {
         const integer = Math.floor(note._time);
         const fraction = note._time - integer;
         if (!this._fractions.includes(fraction)) {
           const neariestFraction = this.getNeariestFraction(fraction);
           note._time = Math.floor(note._time) + neariestFraction;
-          accuracy = MAX_ACCURACY;
+          beatsPerMeasure = MAX_BEATS_PER_MEASURE;
         } else {
-          accuracy = Math.max(
-            MIN_ACCURACY,
-            this.getAccuracyForFraction(fraction),
+          beatsPerMeasure = Math.max(
+            beatsPerMeasure,
+            this.getBeatsPerMeasureForFraction(fraction),
           );
         }
       }
-      byMeasure.accuracy = accuracy;
+      byMeasure.beatsPerMeasure = beatsPerMeasure;
     }
 
     console.log(notesByMeasure);
 
     for (let i = 0; i < numberOfMeasures; i++) {
       if (!notesByMeasure[i]) {
-        stepMeasures[i] = new Array(MIN_ACCURACY)
+        stepMeasures[i] = new Array(DEFAULT_BEATS_PER_MEASURE)
           .fill('')
           .map(() => new Array(4).fill(0));
       } else {
         const currentMeasure = notesByMeasure[i];
-        const accuracy = currentMeasure.accuracy || 4;
+        const beatsPerMeasure = currentMeasure.beatsPerMeasure || DEFAULT_BEATS_PER_MEASURE;
         const mapNotes = currentMeasure.notes;
-        stepMeasures[i] = this.buildStepNotesForMeasure(accuracy, mapNotes, i);
+        stepMeasures[i] = this.buildStepNotesForMeasure(beatsPerMeasure, mapNotes, i);
       }
     }
 
