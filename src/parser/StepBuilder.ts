@@ -168,8 +168,6 @@ export class StepBuilder {
       }
     }
 
-    console.log(stepMeasures);
-
     return stepMeasures;
   }
 }

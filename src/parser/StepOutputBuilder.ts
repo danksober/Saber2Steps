@@ -1,27 +1,54 @@
 import { Chart, StepChart } from '../types/stepTypes';
+import * as JSZip from 'jszip';
+
+interface StepFiles {
+  background?: File;
+  music: File;
+  banner?: File;
+}
 
 export class StepOutputBuilder {
   stepChart: StepChart;
-  constructor(stepChart: StepChart) {
+  stepFiles: StepFiles;
+  constructor(stepChart: StepChart, files: StepFiles) {
     this.stepChart = stepChart;
+    this.stepFiles = files;
   }
 
   copySMContent() {
-    console.log(
-      this.buildSongInfo() +
-        '\n' +
-        this.buildChartInfo(this.stepChart.charts[0]),
-    );
-    navigator.clipboard.writeText(
-      this.buildSongInfo() +
-        '\n' +
-        this.buildChartInfo(this.stepChart.charts[0]),
-    );
     return (
       this.buildSongInfo() +
       '\n' +
       this.buildChartInfo(this.stepChart.charts[0])
     );
+  }
+
+  
+
+  downloadZip() {
+    const zip = new JSZip();
+    zip.file(`${this.stepChart.title}.sm`, this.getSongFileContent());
+    const {music, background, banner} = this.stepFiles;
+    zip.file(music.name, music);
+    if (background) {
+      zip.file(background.name, background);
+    }
+    if (banner) {
+      zip.file(banner.name, banner);
+    }
+    zip.generateAsync({type: 'blob'}).then((content) => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = `${this.stepChart.title}.zip`;  // Set the name of the ZIP file
+      link.click();
+    });
+  }
+
+
+  private getSongFileContent() {
+    return this.buildSongInfo() +
+        '\n' +
+        this.buildChartInfo(this.stepChart.charts[0]);
   }
 
   private toDecimals(num: string, trailingZeros: number) {

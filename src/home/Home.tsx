@@ -6,6 +6,7 @@ import {
 import React from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import {
+  backgroundFileAtom,
   chartFilesAtom,
   infoFileAtom,
   musicFileAtom,
@@ -15,13 +16,14 @@ import SaberFileForm from './SaberFileForm';
 import LevelMapForm from './LevelMapForm';
 import { useParseSaber } from '../parser/SaberParser';
 import StepCharts from './StepCharts';
-import { StepOutputBuilder } from '../parser/StepOutput';
+import { StepOutputBuilder } from '../parser/StepOutputBuilder';
 
 export default function Home() {
   const parse = useParseSaber();
   const charts = useAtomValue(chartFilesAtom);
   const [stepChart, setStepChart] = useAtom(stepChartAtom);
   const musicFile = useAtomValue(musicFileAtom);
+  const backgroundFile = useAtomValue(backgroundFileAtom);
   const infoFile = useAtomValue(infoFileAtom);
   const [activeStepIndex, setActiveStepIndex] = React.useState(0);
 
@@ -42,8 +44,11 @@ export default function Home() {
   };
 
   const onSubmit = () => {
-    const stepOutputBuilder = new StepOutputBuilder(stepChart!);
-    stepOutputBuilder.copySMContent();
+    const stepOutputBuilder = new StepOutputBuilder(stepChart!, {
+      music: musicFile[0],
+      background: backgroundFile[0],
+    });
+    stepOutputBuilder.downloadZip();
   };
 
   return (
