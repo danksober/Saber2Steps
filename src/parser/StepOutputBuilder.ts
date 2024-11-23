@@ -16,10 +16,11 @@ export class StepOutputBuilder {
   }
 
   copySMContent() {
+    const chartInfo = this.stepChart.charts.map(this.buildChartInfo).join('\n');
     return (
       this.buildSongInfo() +
       '\n' +
-      this.buildChartInfo(this.stepChart.charts[0])
+      chartInfo
     );
   }
 
@@ -27,14 +28,15 @@ export class StepOutputBuilder {
 
   downloadZip() {
     const zip = new JSZip();
-    zip.file(`${this.stepChart.title}.sm`, this.getSongFileContent());
+    const folder = zip.folder(this.stepChart.title)!;
+    folder.file(`${this.stepChart.title}.sm`, this.getSongFileContent());
     const {music, background, banner} = this.stepFiles;
-    zip.file(music.name, music);
+    folder.file(music.name, music);
     if (background) {
-      zip.file(background.name, background);
+      folder.file(background.name, background);
     }
     if (banner) {
-      zip.file(banner.name, banner);
+      folder.file(banner.name, banner);
     }
     zip.generateAsync({type: 'blob'}).then((content) => {
       const link = document.createElement('a');
@@ -46,9 +48,10 @@ export class StepOutputBuilder {
 
 
   private getSongFileContent() {
+    const chartInfo = this.stepChart.charts.map(this.buildChartInfo).join('\n');
     return this.buildSongInfo() +
         '\n' +
-        this.buildChartInfo(this.stepChart.charts[0]);
+        chartInfo;
   }
 
   private toDecimals(num: string, trailingZeros: number) {
