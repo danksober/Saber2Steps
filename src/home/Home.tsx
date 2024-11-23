@@ -1,28 +1,34 @@
 import {
-  Container,
-  Header,
   SpaceBetween,
   Wizard,
   WizardProps,
 } from '@cloudscape-design/components';
 import React from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { chartFilesAtom, stepChartAtom } from './formState';
+import { useAtom, useAtomValue } from 'jotai';
+import {
+  chartFilesAtom,
+  infoFileAtom,
+  musicFileAtom,
+  stepChartAtom,
+} from './formState';
 import SaberFileForm from './SaberFileForm';
 import LevelMapForm from './LevelMapForm';
 import { useParseSaber } from '../parser/SaberParser';
 import StepCharts from './StepCharts';
+import { StepOutputBuilder } from '../parser/StepOutput';
 
 export default function Home() {
   const parse = useParseSaber();
   const charts = useAtomValue(chartFilesAtom);
-  const setStepChart = useSetAtom(stepChartAtom);
+  const [stepChart, setStepChart] = useAtom(stepChartAtom);
+  const musicFile = useAtomValue(musicFileAtom);
+  const infoFile = useAtomValue(infoFileAtom);
   const [activeStepIndex, setActiveStepIndex] = React.useState(0);
 
   const onNavigate = (e: WizardProps.NavigateDetail) => {
     if (e.reason === 'next') {
       // validate
-      if (charts?.length) {
+      if (charts?.length && musicFile?.length && infoFile?.length) {
         parse().then((data) => {
           setStepChart(data);
           setActiveStepIndex(e.requestedStepIndex);
@@ -34,6 +40,12 @@ export default function Home() {
       setActiveStepIndex(e.requestedStepIndex);
     }
   };
+
+  const onSubmit = () => {
+    const stepOutputBuilder = new StepOutputBuilder(stepChart!);
+    stepOutputBuilder.copySMContent();
+  };
+
   return (
     <Wizard
       i18nStrings={{
@@ -50,6 +62,7 @@ export default function Home() {
       }}
       allowSkipTo={false}
       onNavigate={(e) => onNavigate(e.detail)}
+      onSubmit={() => onSubmit()}
       activeStepIndex={activeStepIndex}
       steps={[
         {

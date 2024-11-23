@@ -17,7 +17,10 @@ export const useParseSaber = () => {
   const parse = async () => {
     const saberParser = new SaberParser(infoFile[0], mapFiles);
     await saberParser.init();
-    return saberParser.toStepFiles();
+    const stepFile = saberParser.toStepFile();
+    stepFile.background = backgroundFile[0]?.name;
+    stepFile.music = musicFile[0]?.name;
+    return stepFile;
   };
   return parse;
 };
@@ -49,7 +52,7 @@ export class SaberParser {
     )) as any;
   }
 
-  toStepFiles() {
+  toStepFile() {
     if (!this.infoData || !this.chartData) {
       throw new Error('No data');
     }

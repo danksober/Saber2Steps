@@ -8,7 +8,7 @@ type StepBuilderConfig = Omit<StepChart, 'charts'> & {
 };
 
 const DEFAULT_BEATS_PER_MEASURE = 4;
-const MAX_BEATS_PER_MEASURE = 32;
+const MAX_BEATS_PER_MEASURE = 16;
 
 export class StepBuilder {
   config: StepBuilderConfig;
@@ -92,8 +92,9 @@ export class StepBuilder {
         for (let i = 0; i < 4; i++) {
           if (i === randomPosition) {
             notes.push(1);
+          } else {
+            notes.push(0);
           }
-          notes.push(0);
         }
         measure.push(notes);
       } else {
@@ -107,7 +108,7 @@ export class StepBuilder {
   private buildV2StepNotes(notes: NoteV2[]) {
     const stepMeasures: Measure[] = [];
     let numberOfMeasures = 0;
-    const notesByMeasure = notes.reduce(
+    let notesByMeasure = notes.reduce(
       (
         acc: {
           [measure: number]: { notes: NoteV2[]; beatsPerMeasure?: number };
