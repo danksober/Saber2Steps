@@ -108,7 +108,18 @@ export class SaberParser {
   }
 
   private processMapDataV3(data: MapDataV3, name: string) {
-    return this.getStepBuilder(data, name);
+    const v2Data: MapDataV2 = {
+      _notes: data.colorNotes.map((note) => ({
+        _cutDirection: note.c,
+        _lineIndex: note.x,
+        _lineLayer: note.y,
+        _type: note.a,
+        _time: note.b,
+      })),
+      _obstacles: [],
+      _version: '2',
+    };
+    return this.getStepBuilder(v2Data, name);
   }
 
   private processMapDataV2(data: MapDataV2, name: string) {

@@ -86,11 +86,11 @@ export class StepBuilder {
     const measure: Measure = [];
     while (start < (index + 1) * DEFAULT_BEATS_PER_MEASURE) {
       const possibleNotes = mapNotes.filter((note) => note._time === start);
+
       if (possibleNotes.length) {
-        const randomPosition = possibleNotes[0]._lineIndex;
         const notes = [];
         for (let i = 0; i < 4; i++) {
-          if (i === randomPosition) {
+          if (possibleNotes.find((note) => note._lineIndex === i)) {
             notes.push(1);
           } else {
             notes.push(0);

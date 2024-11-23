@@ -17,41 +17,35 @@ export class StepOutputBuilder {
 
   copySMContent() {
     const chartInfo = this.stepChart.charts.map(this.buildChartInfo).join('\n');
-    return (
-      this.buildSongInfo() +
-      '\n' +
-      chartInfo
-    );
+    return this.buildSongInfo() + '\n' + chartInfo;
   }
-
-  
 
   downloadZip() {
     const zip = new JSZip();
     const folder = zip.folder(this.stepChart.title)!;
     folder.file(`${this.stepChart.title}.sm`, this.getSongFileContent());
-    const {music, background, banner} = this.stepFiles;
-    folder.file(music.name, music);
+    const { music, background, banner } = this.stepFiles;
+    const musicName = music.name.endsWith('egg')
+      ? music.name.replace('egg', 'ogg')
+      : music.name;
+    folder.file(musicName, music);
     if (background) {
       folder.file(background.name, background);
     }
     if (banner) {
       folder.file(banner.name, banner);
     }
-    zip.generateAsync({type: 'blob'}).then((content) => {
+    zip.generateAsync({ type: 'blob' }).then((content) => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(content);
-      link.download = `${this.stepChart.title}.zip`;  // Set the name of the ZIP file
+      link.download = `${this.stepChart.title}.zip`; // Set the name of the ZIP file
       link.click();
     });
   }
 
-
   private getSongFileContent() {
     const chartInfo = this.stepChart.charts.map(this.buildChartInfo).join('\n');
-    return this.buildSongInfo() +
-        '\n' +
-        chartInfo;
+    return this.buildSongInfo() + '\n' + chartInfo;
   }
 
   private toDecimals(num: string, trailingZeros: number) {
