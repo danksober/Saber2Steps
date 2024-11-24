@@ -1,53 +1,60 @@
 import {
   Container,
   FileInput,
+  FormField,
   Header,
   SpaceBetween,
   Table,
 } from '@cloudscape-design/components';
-import { useAtom } from 'jotai';
-import React from 'react';
-import { chartFilesAtom } from './formState';
+import { Controller, useFormContext } from 'react-hook-form';
+import { ConfigurationFormState } from '../form/configurationForm';
 
 export default function LevelMapForm() {
-  const [chartFiles, setChartFiles] = useAtom(chartFilesAtom);
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<ConfigurationFormState>();
   return (
     <Container
-      header={
-        <Header
-          variant="h2"
-          description="Choose the level .dat files such as Expert.dat, ExpertPlus.dat"
-        >
-          Choose Beat Saber map files
-        </Header>
-      }
+      header={<Header variant="h2">Choose Beat Saber map files</Header>}
     >
-      <SpaceBetween size="s">
-        <FileInput
-          onChange={({ detail }) => setChartFiles(detail.value)}
-          value={chartFiles}
-          multiple
-        >
-          Choose files
-        </FileInput>
-        <Table<File>
-          columnDefinitions={[
-            {
-              id: 'name',
-              header: 'File name',
-              cell: (file) => file.name,
-            },
-            {
-              id: 'size',
-              header: 'File size',
-              cell: (file) => file.size / 1000 + 'KB',
-            },
-          ]}
-          items={chartFiles}
-          empty="No map files"
-          variant="embedded"
-        />
-      </SpaceBetween>
+      <Controller
+        control={control}
+        name="chartFiles"
+        render={({ field }) => (
+          <SpaceBetween size="s">
+            <FormField
+              constraintText="Choose the level .dat files such as Expert.dat, ExpertPlus.dat"
+              errorText={errors.chartFiles?.message}
+            >
+              <FileInput
+                onChange={({ detail }) => field.onChange(detail.value)}
+                value={field.value || []}
+                multiple
+              >
+                Choose files
+              </FileInput>
+            </FormField>
+            <Table<File>
+              columnDefinitions={[
+                {
+                  id: 'name',
+                  header: 'File name',
+                  cell: (file) => file.name,
+                },
+                {
+                  id: 'size',
+                  header: 'File size',
+                  cell: (file) => file.size / 1000 + 'KB',
+                },
+              ]}
+              items={field.value || []}
+              empty="No map files"
+              variant="embedded"
+            />
+          </SpaceBetween>
+        )}
+      />
     </Container>
   );
 }

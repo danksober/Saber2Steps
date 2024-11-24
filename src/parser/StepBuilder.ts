@@ -8,7 +8,7 @@ type StepBuilderConfig = Omit<StepChart, 'charts'> & {
 };
 
 const DEFAULT_BEATS_PER_MEASURE = 4;
-const MAX_BEATS_PER_MEASURE = 16;
+const MAX_BEATS_PER_MEASURE = 32;
 
 export class StepBuilder {
   config: StepBuilderConfig;

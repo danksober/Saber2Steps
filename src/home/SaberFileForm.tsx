@@ -1,5 +1,3 @@
-import { useAtom } from 'jotai';
-import { musicFileAtom, backgroundFileAtom, infoFileAtom } from './formState';
 import {
   Box,
   Container,
@@ -10,11 +8,14 @@ import {
   SpaceBetween,
 } from '@cloudscape-design/components';
 import { commonFileUploadProps } from '../constants/fileUpload';
+import { Controller, useFormContext } from 'react-hook-form';
+import { ConfigurationFormState } from '../form/configurationForm';
 
 export default function SaberFileForm() {
-  const [musicFile, setMusicFile] = useAtom(musicFileAtom);
-  const [backgroundFile, setBackgroundFile] = useAtom(backgroundFileAtom);
-  const [infoFile, setInfoFile] = useAtom(infoFileAtom);
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<ConfigurationFormState>();
   return (
     <Container
       header={
@@ -39,41 +40,65 @@ export default function SaberFileForm() {
       }
     >
       <SpaceBetween direction="vertical" size="m">
-        <FormField
-          label=" Choose info file"
-          description="Choose info file for the song, the file should be in the zip you downloaded named info.dat"
-        >
-          <FileUpload
-            onChange={({ detail }) => setInfoFile(detail.value)}
-            value={infoFile}
-            {...commonFileUploadProps}
-            constraintText="info.dat"
-          />
-        </FormField>
+        <Controller
+          control={control}
+          name="infoFile"
+          render={({ field }) => (
+            <FormField
+              label=" Choose info file"
+              description="Choose info file for the song, the file should be in the zip you downloaded named info.dat"
+              errorText={errors.infoFile?.message}
+              constraintText="File name should be like info.dat"
+            >
+              <FileUpload
+                value={field.value ? [field.value] : []}
+                onChange={({ detail }) => field.onChange(detail.value[0])}
+                {...commonFileUploadProps}
+                accept=".dat"
+              />
+            </FormField>
+          )}
+        ></Controller>
 
-        <FormField
-          label=" Choose music file"
-          description="Choose music file for the song, the music file should be in the zip you downloaded, might need conversion to ogg or mp3 format"
-        >
-          <FileUpload
-            onChange={({ detail }) => setMusicFile(detail.value)}
-            value={musicFile}
-            {...commonFileUploadProps}
-            constraintText=".mp3 or .ogg format"
-          />
-        </FormField>
+        <Controller
+          control={control}
+          name="musicFile"
+          render={({ field }) => (
+            <FormField
+              label=" Choose music file"
+              description="Choose music file for the song, the music file should be in the zip you downloaded, might need conversion to ogg or mp3 format"
+              errorText={errors.musicFile?.message}
+              constraintText=".mp3 or .ogg format"
+            >
+              <FileUpload
+                value={field.value ? [field.value] : []}
+                onChange={({ detail }) => field.onChange(detail.value[0])}
+                {...commonFileUploadProps}
+                accept=".mp3,.ogg,.egg"
+              />
+            </FormField>
+          )}
+        ></Controller>
 
-        <FormField
-          label=" Choose background file (Optional)"
-          description="Choose background file for the song, the file should be in the zip you downloaded"
-        >
-          <FileUpload
-            onChange={({ detail }) => setBackgroundFile(detail.value)}
-            value={backgroundFile}
-            {...commonFileUploadProps}
-            constraintText=".jpg, .jpeg, .png etc."
-          />
-        </FormField>
+        <Controller
+          control={control}
+          name="backgroundFile"
+          render={({ field }) => (
+            <FormField
+              label=" Choose background file (Optional)"
+              description="Choose background file for the song, the file should be in the zip you downloaded"
+              errorText={errors.backgroundFile?.message}
+              constraintText=".jpg, .jpeg, .png etc."
+            >
+              <FileUpload
+                value={field.value ? [field.value] : []}
+                onChange={({ detail }) => field.onChange(detail.value[0])}
+                {...commonFileUploadProps}
+                accept=".jpg,.jpeg,.png,.tif,.bmp"
+              />
+            </FormField>
+          )}
+        ></Controller>
       </SpaceBetween>
     </Container>
   );

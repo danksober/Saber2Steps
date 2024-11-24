@@ -28,7 +28,7 @@ export class StepOutputBuilder {
     const musicName = music.name.endsWith('egg')
       ? music.name.replace('egg', 'ogg')
       : music.name;
-    folder.file(musicName, music);
+    folder.file(music.name, music);
     if (background) {
       folder.file(background.name, background);
     }

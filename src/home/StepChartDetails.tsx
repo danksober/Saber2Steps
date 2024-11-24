@@ -1,4 +1,3 @@
-import React from 'react';
 import { Chart } from '../types/stepTypes';
 import {
   Container,

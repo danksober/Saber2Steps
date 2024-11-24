@@ -1,25 +1,18 @@
-import { useAtom, useAtomValue } from 'jotai';
 import { MapDataV3, MapDataV2, MapInfoDataV2 } from '../types/mapTypes';
 import { StepChart } from '../types/stepTypes';
-import {
-  musicFileAtom,
-  backgroundFileAtom,
-  infoFileAtom,
-  chartFilesAtom,
-} from '../home/formState';
 import { StepBuilder } from './StepBuilder';
+import { ConfigurationFormState } from '../form/configurationForm';
 
 export const useParseSaber = () => {
-  const musicFile = useAtomValue(musicFileAtom);
-  const backgroundFile = useAtomValue(backgroundFileAtom);
-  const infoFile = useAtomValue(infoFileAtom);
-  const mapFiles = useAtomValue(chartFilesAtom);
-  const parse = async () => {
-    const saberParser = new SaberParser(infoFile[0], mapFiles);
+  const parse = async (formState: ConfigurationFormState) => {
+    const saberParser = new SaberParser(
+      formState.infoFile,
+      formState.chartFiles,
+    );
     await saberParser.init();
     const stepFile = saberParser.toStepFile();
-    stepFile.background = backgroundFile[0]?.name;
-    stepFile.music = musicFile[0]?.name;
+    stepFile.background = formState.backgroundFile?.name;
+    stepFile.music = formState.musicFile.name;
     return stepFile;
   };
   return parse;
