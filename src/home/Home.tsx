@@ -7,18 +7,17 @@ import {
 import React, { useState } from 'react';
 import { useAtom } from 'jotai';
 import { stepChartAtom } from './formState';
-import SaberFileForm from './SaberFileForm';
-import LevelMapForm from './LevelMapForm';
 import { useParseSaber } from '../parser/SaberParser';
 import StepCharts from './StepCharts';
 import { StepOutputBuilder } from '../parser/StepOutputBuilder';
-import { useConfigurationForm } from '../form/configurationForm';
+import { useMapConfigurationForm } from '../form/configurationForm';
 import { FormProvider } from 'react-hook-form';
+import BeatSaberInputForm from './BeatSaberInputForm';
 
 export default function Home() {
   const [stepChart, setStepChart] = useAtom(stepChartAtom);
 
-  const formMethods = useConfigurationForm();
+  const formMethods = useMapConfigurationForm();
   const parse = useParseSaber();
   const [parseError, setParseError] = useState<string>();
 
@@ -77,8 +76,7 @@ export default function Home() {
               'This app can convert Beat Saber custom maps to ITG/Stepmania chart files',
             content: (
               <SpaceBetween direction="vertical" size="l">
-                <SaberFileForm />
-                <LevelMapForm />
+                <BeatSaberInputForm />
                 {parseError && (
                   <Alert
                     header="Error parsing Beat Saber files. Please check file format"

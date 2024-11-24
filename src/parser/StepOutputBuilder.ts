@@ -25,9 +25,6 @@ export class StepOutputBuilder {
     const folder = zip.folder(this.stepChart.title)!;
     folder.file(`${this.stepChart.title}.sm`, this.getSongFileContent());
     const { music, background, banner } = this.stepFiles;
-    const musicName = music.name.endsWith('egg')
-      ? music.name.replace('egg', 'ogg')
-      : music.name;
     folder.file(music.name, music);
     if (background) {
       folder.file(background.name, background);

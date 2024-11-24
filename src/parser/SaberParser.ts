@@ -2,6 +2,7 @@ import { MapDataV3, MapDataV2, MapInfoDataV2 } from '../types/mapTypes';
 import { StepChart } from '../types/stepTypes';
 import { StepBuilder } from './StepBuilder';
 import { ConfigurationFormState } from '../form/configurationForm';
+import { readFileSync } from '../constants/fileReader';
 
 export const useParseSaber = () => {
   const parse = async (formState: ConfigurationFormState) => {
@@ -120,21 +121,4 @@ export class SaberParser {
   }
 }
 
-function readFileSync<T>(file: File): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
 
-    // This function will be called once the file has been read
-    reader.onload = () => {
-      resolve(JSON.parse(reader.result as string) as T); // Return the file content
-    };
-
-    // In case of error, reject the promise
-    reader.onerror = (error) => {
-      reject(error);
-    };
-
-    // Start reading the file as text (can also be read as Data URL, Binary String, etc.)
-    reader.readAsText(file);
-  });
-}
