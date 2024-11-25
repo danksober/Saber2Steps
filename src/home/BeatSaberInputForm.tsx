@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -19,7 +20,7 @@ import styled from 'styled-components';
 import { getMapInfo } from '../constants/getMapInfo';
 
 export default function BeatSaberInputForm() {
-  const { control, watch } = useFormContext<ConfigurationFormState>();
+  const { control, watch, setValue } = useFormContext<ConfigurationFormState>();
   const {
     control: linkControl,
     trigger,
@@ -29,16 +30,34 @@ export default function BeatSaberInputForm() {
   const [mapId, setMapId] = useState<string>();
 
   const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const watchInputType = watch('inputType');
 
   const onGenerate = async () => {
     const isValid = await trigger();
+    setError('');
     if (isValid) {
-      const mapId = getValues('mapLink').replace('https://beatsaver.com/maps/', '');
-      setMapId(mapId);
-      const info = await getMapInfo(mapId);
-      setModal(true);
+      setLoading(true);
+      try {
+        const mapId = getValues('mapLink').replace(
+          'https://beatsaver.com/maps/',
+          '',
+        );
+        const { chartFiles, infoFile, musicFile, backgroundFile } =
+          await getMapInfo(mapId);
+        setValue('backgroundFile', backgroundFile);
+        setValue('musicFile', musicFile);
+        setValue('chartFiles', chartFiles);
+        setValue('infoFile', infoFile);
+        setMapId(mapId);
+        setModal(true);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
   return (
@@ -115,15 +134,16 @@ export default function BeatSaberInputForm() {
             <Box float="right">
               <SpaceBetween direction="horizontal" size="m">
                 {mapId && <Button onClick={() => setModal(true)}>View</Button>}
-                <Button onClick={onGenerate}>
+                <Button onClick={onGenerate} loading={loading}>
                   {mapId ? 'Re-generate' : 'Generate'}
                 </Button>
               </SpaceBetween>
             </Box>
+            {error && <Alert type="error" header="Error getting map data">{error}</Alert>}
           </SpaceBetween>
         </Container>
       )}
-      {watchInputType === 'manual' && (
+      {watchInputType === 'manual' || mapId && (
         <>
           <SaberFileForm />
           <LevelMapForm />
