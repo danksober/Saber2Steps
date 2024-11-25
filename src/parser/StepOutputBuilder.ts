@@ -25,7 +25,7 @@ export class StepOutputBuilder {
     const folder = zip.folder(this.stepChart.title)!;
     folder.file(`${this.stepChart.title}.sm`, this.getSongFileContent());
     const { music, background, banner } = this.stepFiles;
-    folder.file(music.name, music);
+    folder.file(music.name.replace('egg', 'ogg'), music);
     if (background) {
       folder.file(background.name, background);
     }
@@ -56,7 +56,7 @@ export class StepOutputBuilder {
 //---------------${chart.type} - ----------------
      ${chart.type}:
      :
-     Challenge:
+     ${chart.name.split('_')[0]}:
      ${chart.meter}:
      0,0,0,0,0:
 `;
@@ -97,7 +97,7 @@ export class StepOutputBuilder {
 #BACKGROUND:${background || ''};
 #LYRICSPATH:;
 #CDTITLE:;
-#MUSIC:${music || ''};
+#MUSIC:${(music || '').replace('egg', 'ogg')};
 #OFFSET:${this.toDecimals(offset || '0', 6)};
 #SAMPLESTART:${this.toDecimals(sampleStart || '0', 6)};
 #SAMPLELENGTH:${this.toDecimals(sampleLength || '10', 6)};

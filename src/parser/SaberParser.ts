@@ -4,6 +4,8 @@ import { StepBuilder } from './StepBuilder';
 import { ConfigurationFormState } from '../form/configurationForm';
 import { readFileSync } from '../constants/fileReader';
 
+const ITG_LEVEL_MAP = ['Challenge', 'Hard', 'Medium', 'Easy', 'Beginner'];
+
 export const useParseSaber = () => {
   const parse = async (formState: ConfigurationFormState) => {
     const saberParser = new SaberParser(
@@ -38,10 +40,7 @@ export class SaberParser {
     this.chartData = (await Promise.all(
       this.mapFiles.map(async (file) => {
         const data: any = await readFileSync(file);
-        return {
-          data,
-          name: file.name,
-        };
+        return data;
       }),
     )) as any;
   }
@@ -50,10 +49,19 @@ export class SaberParser {
     if (!this.infoData || !this.chartData) {
       throw new Error('No data');
     }
-    const charts = this.chartData.map(({ data, name }: any) => {
-      return this.parseMapFile(data, name);
+    let parsedData = this.chartData.map(data => {
+      if (this.isV3Map(data)) {
+        return this.parseMapDataV3(data);
+      } else {
+        return data;
+      }
     });
-    const stepChart: StepChart = { ...this.getStepChartConfig(), charts };
+    parsedData = this.sortChartData(parsedData); 
+    const difficultyNames = this.getChartDifficultyNames(parsedData);
+    const stepCharts = parsedData.map((data, index) => {
+       return this.buildSteps(data, difficultyNames[index]);
+    });
+    const stepChart: StepChart = { ...this.getStepChartConfig(), charts: stepCharts };
     return stepChart;
   }
 
@@ -61,12 +69,21 @@ export class SaberParser {
     return parseFloat((data as any).version || '0') >= 3;
   }
 
-  private parseMapFile(data: MapDataV2 | MapDataV3, name: string) {
-    if (this.isV3Map(data)) {
-      return this.processMapDataV3(data, name);
-    } else {
-      return this.processMapDataV2(data, name);
+  private sortChartData(chartData: MapDataV2[]) {
+    return chartData.sort((a, b) => b._notes.length - a._notes.length).slice(0, ITG_LEVEL_MAP.length * 2);
+  }
+
+
+  private getChartDifficultyNames(chartData: MapDataV2[]) {
+    const length = chartData.length;
+    const res = ITG_LEVEL_MAP.slice();
+    let remains = length - ITG_LEVEL_MAP.length;
+    let index = 0;
+    while (index < remains) {
+      res.splice(index * 2, 0, `${ITG_LEVEL_MAP[index]}_Edit`);
+      index++;
     }
+    return res;
   }
 
   private getStepChartConfig() {
@@ -87,21 +104,21 @@ export class SaberParser {
     };
   }
 
-  private getStepBuilder(data: any, name: string) {
+  private buildSteps(data: MapDataV2, name: string) {
     if (!this.infoData || !this.chartData) {
       throw new Error('No data');
     }
 
     const stepBuilder = new StepBuilder({
       ...this.getStepChartConfig(),
-      mapNotes: data.colorNotes || data._notes,
+      mapNotes: data._notes,
       difficultyName: name,
       meter: '10',
     });
     return stepBuilder.build();
   }
 
-  private processMapDataV3(data: MapDataV3, name: string) {
+  private parseMapDataV3(data: MapDataV3) {
     const v2Data: MapDataV2 = {
       _notes: data.colorNotes.map((note) => ({
         _cutDirection: note.c,
@@ -113,10 +130,6 @@ export class SaberParser {
       _obstacles: [],
       _version: '2',
     };
-    return this.getStepBuilder(v2Data, name);
-  }
-
-  private processMapDataV2(data: MapDataV2, name: string) {
-    return this.getStepBuilder(data, name);
+    return v2Data;
   }
 }

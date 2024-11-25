@@ -68,7 +68,7 @@ export default function SaberFileForm() {
               label=" Choose music file"
               description="Choose music file for the song, the music file should be in the zip you downloaded, might need conversion to ogg or mp3 format"
               errorText={errors.musicFile?.message}
-              constraintText=".mp3 or .ogg format"
+              constraintText=".mp3,.egg or .ogg format"
             >
               <FileUpload
                 value={field.value ? [field.value] : []}

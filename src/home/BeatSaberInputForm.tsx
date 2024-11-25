@@ -15,7 +15,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { ConfigurationFormState, useLinkForm } from '../form/configurationForm';
 import SaberFileForm from './SaberFileForm';
 import LevelMapForm from './LevelMapForm';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { getMapInfo } from '../constants/getMapInfo';
 import { useAtom } from 'jotai';

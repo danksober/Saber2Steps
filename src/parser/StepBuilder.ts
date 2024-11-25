@@ -1,8 +1,8 @@
-import { ColorNote, NoteV2 } from '../types/mapTypes';
+import { NoteV2 } from '../types/mapTypes';
 import { Chart, Measure, StepChart } from '../types/stepTypes';
 
 type StepBuilderConfig = Omit<StepChart, 'charts'> & {
-  mapNotes: ColorNote[] | NoteV2[];
+  mapNotes: NoteV2[];
   difficultyName: string;
   meter: string;
 };
@@ -35,23 +35,32 @@ export class StepBuilder {
     return this.config.bpms;
   }
 
-  private isV2MapNotes(notes: ColorNote[] | NoteV2[]): notes is NoteV2[] {
-    return '_time' in notes[0];
-  }
-
-  private mapToChart(notes: ColorNote[] | NoteV2[]) {
+  private mapToChart(notes: NoteV2[]) {
+    const stepNotes = this.buildV2StepNotes(notes);
     const chart: Chart = {
       type: 'dance-single',
-      meter: this.config.meter,
+      meter: this.getChartDifficulty(stepNotes).toString(),
       name: this.config.difficultyName,
-      notes: [],
+      notes: stepNotes,
     };
-    if (this.isV2MapNotes(notes)) {
-      const stepNotes = this.buildV2StepNotes(notes);
-      chart.notes = stepNotes;
-    } else {
-    }
     return chart;
+  }
+
+  private getChartDifficulty(stepNotes: Measure[]) {
+    const notes = stepNotes.flat();
+    const lastTime = this.config.mapNotes.slice(-1)[0]?._time;
+    if (!lastTime) {
+      return 1;
+    }
+    const songLengthInMins = lastTime / +this.getBpm();
+    // jump counts as 3 notes because it's energy consuming
+    const notesPerMin = notes.reduce<number>((acc, cur) => {
+      const noteCount = cur.filter(note => !!note).length;
+      acc += noteCount > 1 ? 3 : noteCount ? 1 : 0;
+      return acc;
+    }, 0) / songLengthInMins;
+    // 300 notes per min is 10
+    return Math.round(notesPerMin / 300 * 10) || 1;
   }
 
   private getBeatsPerMeasureForFraction(fraction: number) {

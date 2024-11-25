@@ -12,7 +12,6 @@ export const getMapInfo = async (
   const mapInfo = await fetch(
     `https://api.beatsaver.com/maps/id/${mapId}`,
   ).then((res) => res.json());
-  console.log(mapInfo);
   if (mapInfo.errors) {
     throw new Error(mapInfo.errors[0]);
   }
@@ -29,8 +28,6 @@ export const getMapInfo = async (
     throw new Error('No info file found in the link');
   }
   const infoContent: MapInfoDataV2 = JSON.parse(await infoZip.async('text'));
-  console.log(files);
-  console.log(infoContent);
   const infoFile = await convertToFile(infoZip);
   const musicFile = await convertToFile(files[infoContent._songFilename]);
   const backgroundFile = await convertToFile(
