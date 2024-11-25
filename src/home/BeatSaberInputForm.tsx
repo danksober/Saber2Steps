@@ -15,9 +15,11 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { ConfigurationFormState, useLinkForm } from '../form/configurationForm';
 import SaberFileForm from './SaberFileForm';
 import LevelMapForm from './LevelMapForm';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getMapInfo } from '../constants/getMapInfo';
+import { useAtom } from 'jotai';
+import { mapIdAtom } from './formState';
 
 export default function BeatSaberInputForm() {
   const { control, watch, setValue } = useFormContext<ConfigurationFormState>();
@@ -27,7 +29,7 @@ export default function BeatSaberInputForm() {
     getValues,
     formState: { errors },
   } = useLinkForm();
-  const [mapId, setMapId] = useState<string>();
+  const [mapId, setMapId] = useAtom(mapIdAtom);
 
   const [modal, setModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -123,7 +125,6 @@ export default function BeatSaberInputForm() {
                 >
                   <Input
                     placeholder="https://beatsaver.com/maps/<YOUR_MAP_ID>"
-                    {...field}
                     value={field.value}
                     onChange={(e) => field.onChange(e.detail.value)}
                   />
@@ -139,11 +140,15 @@ export default function BeatSaberInputForm() {
                 </Button>
               </SpaceBetween>
             </Box>
-            {error && <Alert type="error" header="Error getting map data">{error}</Alert>}
+            {error && (
+              <Alert type="error" header="Error getting map data">
+                {error}
+              </Alert>
+            )}
           </SpaceBetween>
         </Container>
       )}
-      {watchInputType === 'manual' || mapId && (
+      {(watchInputType === 'manual' || mapId) && (
         <>
           <SaberFileForm />
           <LevelMapForm />
