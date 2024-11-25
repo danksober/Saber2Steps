@@ -125,7 +125,7 @@ export class StepBuilder {
         cur: NoteV2,
       ) => {
         const measureIndex = Math.floor(cur._time / DEFAULT_BEATS_PER_MEASURE);
-        numberOfMeasures = Math.max(measureIndex, numberOfMeasures);
+        numberOfMeasures = Math.max(measureIndex + 1, numberOfMeasures);
         if (acc[measureIndex]?.notes) {
           acc[measureIndex].notes.push(cur);
         } else {
@@ -176,6 +176,8 @@ export class StepBuilder {
         );
       }
     }
+
+    console.log(stepMeasures);
 
     return stepMeasures;
   }
