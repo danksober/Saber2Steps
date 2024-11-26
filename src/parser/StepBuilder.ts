@@ -124,8 +124,11 @@ export class StepBuilder {
           this.tap += 1;
         } else if (noteCount === 2) {
           this.jump += 1;
+          this.tap += 1;
         } else if (noteCount > 2) {
           this.hands += 1;
+          this.jump += 1;
+          this.tap += 1;
         }
         measure.push(notes);
       } else {
@@ -146,6 +149,12 @@ export class StepBuilder {
         },
         cur: NoteV2,
       ) => {
+        const integer = Math.floor(cur._time);
+        const fraction = cur._time - integer;
+        if (!this._fractions.includes(fraction)) {
+          const neariestFraction = this.getNeariestFraction(fraction);
+          cur._time = Math.floor(cur._time) + neariestFraction;
+        }
         const measureIndex = Math.floor(cur._time / DEFAULT_BEATS_PER_MEASURE);
         numberOfMeasures = Math.max(measureIndex + 1, numberOfMeasures);
         if (acc[measureIndex]?.notes) {
@@ -165,16 +174,12 @@ export class StepBuilder {
       for (const note of byMeasure.notes || []) {
         const integer = Math.floor(note._time);
         const fraction = note._time - integer;
-        if (!this._fractions.includes(fraction)) {
-          const neariestFraction = this.getNeariestFraction(fraction);
-          note._time = Math.floor(note._time) + neariestFraction;
-          beatsPerMeasure = MAX_BEATS_PER_MEASURE;
-        } else {
+
           beatsPerMeasure = Math.max(
             beatsPerMeasure,
             this.getBeatsPerMeasureForFraction(fraction),
           );
-        }
+        
       }
       byMeasure.beatsPerMeasure = beatsPerMeasure;
     }
