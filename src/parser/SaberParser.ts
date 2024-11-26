@@ -49,19 +49,22 @@ export class SaberParser {
     if (!this.infoData || !this.chartData) {
       throw new Error('No data');
     }
-    let parsedData = this.chartData.map(data => {
+    let parsedData = this.chartData.map((data) => {
       if (this.isV3Map(data)) {
         return this.parseMapDataV3(data);
       } else {
         return data;
       }
     });
-    parsedData = this.sortChartData(parsedData); 
+    parsedData = this.sortChartData(parsedData);
     const difficultyNames = this.getChartDifficultyNames(parsedData);
     const stepCharts = parsedData.map((data, index) => {
-       return this.buildSteps(data, difficultyNames[index]);
+      return this.buildSteps(data, difficultyNames[index]);
     });
-    const stepChart: StepChart = { ...this.getStepChartConfig(), charts: stepCharts };
+    const stepChart: StepChart = {
+      ...this.getStepChartConfig(),
+      charts: stepCharts,
+    };
     return stepChart;
   }
 
@@ -70,9 +73,10 @@ export class SaberParser {
   }
 
   private sortChartData(chartData: MapDataV2[]) {
-    return chartData.sort((a, b) => b._notes.length - a._notes.length).slice(0, ITG_LEVEL_MAP.length * 2);
+    return chartData
+      .sort((a, b) => b._notes.length - a._notes.length)
+      .slice(0, ITG_LEVEL_MAP.length * 2);
   }
-
 
   private getChartDifficultyNames(chartData: MapDataV2[]) {
     const length = chartData.length;

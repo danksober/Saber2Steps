@@ -72,7 +72,7 @@ const getNoteColor = (index: number, noteSize: number) => {
 };
 
 interface NoteProps {
-  note: number[];
+  note: string[];
   height: string;
   noteSize: number;
   index: number;
@@ -84,7 +84,8 @@ const Note = ({ note, height, noteSize, index }: NoteProps) => {
     <StyledNote height={height}>
       {note.map((position, index) => (
         <StyledNotePosition key={index}>
-          {position ? <NoteArrow position={index} color={color} /> : <></>}
+          {position === '1' && <NoteArrow position={index} color={color} />}
+          {position === 'M' && <Mine />}
         </StyledNotePosition>
       ))}
     </StyledNote>
@@ -96,6 +97,14 @@ const ARROW_ROTATE_DEGS = {
   1: 270,
   2: 90,
   3: 180,
+};
+
+const Mine = () => {
+  return (
+    <StyledMine>
+      <span>☢️</span>
+    </StyledMine>
+  );
 };
 
 const NoteArrow = ({
@@ -133,6 +142,12 @@ const StyledNote = styled.div<StyledNoteProps>`
     height: ${(props) => props.height};
     position: relative;
     top: -12px;
+`;
+
+const StyledMine = styled.div`
+  span {
+    font-size: 30px;
+  }
 `;
 
 const Beat = styled.div<BeatProps>`

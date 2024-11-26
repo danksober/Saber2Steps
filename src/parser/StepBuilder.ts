@@ -12,6 +12,12 @@ const MAX_BEATS_PER_MEASURE = 32;
 
 export class StepBuilder {
   config: StepBuilderConfig;
+  private tap: number = 0;
+  private jump: number = 0;
+  private mines: number = 0;
+  private hands: number = 0;
+  private hold: number = 0;
+
   private _fractions: number[] = [];
   constructor(StepConfig: StepBuilderConfig) {
     this.config = StepConfig;
@@ -42,6 +48,11 @@ export class StepBuilder {
       meter: this.getChartDifficulty(stepNotes).toString(),
       name: this.config.difficultyName,
       notes: stepNotes,
+      hands: this.hands,
+      jump: this.jump,
+      tap: this.tap,
+      hold: this.hold,
+      bomb: this.mines,
     };
     return chart;
   }
@@ -54,13 +65,10 @@ export class StepBuilder {
     }
     const songLengthInMins = lastTime / +this.getBpm();
     // jump counts as 3 notes because it's energy consuming
-    const notesPerMin = notes.reduce<number>((acc, cur) => {
-      const noteCount = cur.filter(note => !!note).length;
-      acc += noteCount > 1 ? 3 : noteCount ? 1 : 0;
-      return acc;
-    }, 0) / songLengthInMins;
+    const noteCount = this.jump * 3 + this.hands * 4 + this.tap;
+    const notesPerMin = noteCount / songLengthInMins;
     // 300 notes per min is 10
-    return Math.round(notesPerMin / 300 * 10) || 1;
+    return Math.round((notesPerMin / 300) * 10) || 1;
   }
 
   private getBeatsPerMeasureForFraction(fraction: number) {
@@ -95,19 +103,33 @@ export class StepBuilder {
     const measure: Measure = [];
     while (start < (index + 1) * DEFAULT_BEATS_PER_MEASURE) {
       const possibleNotes = mapNotes.filter((note) => note._time === start);
-
       if (possibleNotes.length) {
         const notes = [];
         for (let i = 0; i < 4; i++) {
-          if (possibleNotes.find((note) => note._lineIndex === i)) {
-            notes.push(1);
+          const possibleNote = possibleNotes.find(
+            (note) => note._lineIndex === i,
+          );
+          if (possibleNote) {
+            if (possibleNote._type === 3) {
+              this.mines += 1;
+            }
+            const note = possibleNote._type !== 3 ? '1' : 'M';
+            notes.push(note);
           } else {
-            notes.push(0);
+            notes.push('0');
           }
+        }
+        const noteCount = notes.filter((note) => note === '1').length;
+        if (noteCount === 1) {
+          this.tap += 1;
+        } else if (noteCount === 2) {
+          this.jump += 1;
+        } else if (noteCount > 2) {
+          this.hands += 1;
         }
         measure.push(notes);
       } else {
-        measure.push([0, 0, 0, 0]);
+        measure.push(['0', '0', '0', '0']);
       }
       start += fraction;
     }

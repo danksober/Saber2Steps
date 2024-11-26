@@ -33,12 +33,20 @@ export default function StepChartDetails({ chart }: StepChartDetailsProps) {
               value: chart.meter || '-',
             },
             {
-              label: 'Description',
-              value: chart.description || '-',
+              label: 'Tap',
+              value: chart.tap || 0,
             },
             {
-              label: 'Credit',
-              value: chart.credit || '-',
+              label: 'Jump',
+              value: chart.jump || 0,
+            },
+            {
+              label: 'Hold',
+              value: chart.hold || 0,
+            },
+            {
+              label: 'Mines',
+              value: chart.bomb || 0,
             },
           ]}
         />

@@ -1,4 +1,4 @@
-export type Measure = number[][];
+export type Measure = string[][];
 
 export interface StepChart {
   title: string;
@@ -19,9 +19,12 @@ export interface StepChart {
 export interface Chart {
   type: 'dance-single' | 'dance-double';
   name: string;
-  description?: string;
   meter: string;
   radarValues?: string[];
   notes: Measure[];
-  credit?: string;
+  tap?: number;
+  jump?: number;
+  bomb?: number;
+  hold?: number;
+  hands?: number;
 }
