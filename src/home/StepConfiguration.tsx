@@ -24,7 +24,8 @@ const noteGapOptions = [
   },
 ];
 
-const getNoteSelectionLabel = (value: number) => `${value}${value !== 32 ? 'th' : 'nd'} notes`;
+const getNoteSelectionLabel = (value: number) =>
+  `${value}${value !== 32 ? 'th' : 'nd'} notes`;
 
 export default function StepConfiguration() {
   const { control } = useFormContext<StepConfigurationFormState>();
@@ -59,43 +60,66 @@ export default function StepConfiguration() {
             variant="h2"
             description="Configure step output crossover options"
           >
-            General options
+            Crossover options
           </Header>
         }
       >
-        <Controller
-          control={control}
-          name="crossover"
-          render={({ field }) => (
-            <FormField label="Include crossovers">
-              <RadioGroup
-                value={field.value as any}
-                onChange={(e) => field.onChange(e.detail.value)}
-                items={[
-                  {
-                    value: 'true',
-                    label: 'Yes',
-                    description: 'Generate crossovers',
-                  },
-                  {
-                    value: 'false',
-                    label: 'No',
-                    description: (
-                      <span>
-                        Do <b>NOT</b> generate crossovers
-                      </span>
-                    ),
-                  },
-                ]}
-              />
-            </FormField>
-          )}
-        ></Controller>
+        <SpaceBetween size="l">
+          <Controller
+            control={control}
+            name="crossover"
+            render={({ field }) => (
+              <FormField label="Include crossovers">
+                <RadioGroup
+                  value={field.value as any}
+                  onChange={(e) => field.onChange(e.detail.value)}
+                  items={[
+                    {
+                      value: 'true',
+                      label: 'Yes',
+                      description: 'Generate crossovers',
+                    },
+                    {
+                      value: 'false',
+                      label: 'No',
+                      description: (
+                        <span>
+                          Do <b>NOT</b> generate crossovers
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
+              </FormField>
+            )}
+          ></Controller>
+          <Controller
+            control={control}
+            name="minGapForCrossovers"
+            render={({ field }) => (
+              <FormField
+                label="Mininum gaps between crossovers"
+                description="The minimum gaps in notes between crossovers, this will prevent consecutive crossovers in short amount of time"
+              >
+                <Select
+                  selectedOption={{
+                    value: field.value?.toString(),
+                    label: getNoteSelectionLabel(field.value!),
+                  }}
+                  options={noteGapOptions}
+                  onChange={({ detail }) =>
+                    field.onChange(+detail.selectedOption.value!)
+                  }
+                />
+              </FormField>
+            )}
+          ></Controller>
+        </SpaceBetween>
       </Container>
       <Container
         header={
           <Header variant="h2" description="Configure step output jump options">
-            Jumps
+            Jump options
           </Header>
         }
       >
@@ -150,7 +174,7 @@ export default function StepConfiguration() {
               </FormField>
             )}
           ></Controller>
-                <Controller
+          <Controller
             control={control}
             name="minGapForDoubleTap"
             render={({ field }) => (

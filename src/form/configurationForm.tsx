@@ -19,6 +19,7 @@ export interface StepConfigurationFormState {
   hands?: HandsMode;
   jumpMode?: JumpMode;
   minGapForAutoSnapping?: number;
+  minGapForCrossovers?: number;
   minGapForDoubleTap?: number; // min double tap default 8th notes
   minGapForJumps?: number; // min gap for jumps default 8th notes otherwise the note will be single
 }
@@ -48,6 +49,7 @@ const stepValidationSchema = Yup.object<StepConfigurationFormState>().shape({
   crossover: Yup.string<CrossoverMode>(),
   jumpMode: Yup.string<JumpMode>(),
   hands: Yup.string<HandsMode>(),
+  minGapForCrossovers: Yup.number().min(4).max(32),
   minGapForDoubleTap: Yup.number().min(4).max(32),
   minGapForJumps: Yup.number().min(4).max(32),
   minGapForAutoSnapping: Yup.number().min(8).max(32),
@@ -71,8 +73,9 @@ export const useStepConfigForm = () => {
       jumpMode: 'swing',
       minGapForDoubleTap: 8,
       minGapForJumps: 8,
+      minGapForCrossovers: 4,
       minGapForAutoSnapping: 16,
-      crossover: 'false',
+      crossover: 'true',
       hands: 'false',
     },
     resolver: yupResolver(stepValidationSchema),
