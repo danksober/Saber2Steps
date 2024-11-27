@@ -7,13 +7,13 @@ import {
   Table,
 } from '@cloudscape-design/components';
 import { Controller, useFormContext } from 'react-hook-form';
-import { ConfigurationFormState } from '../form/configurationForm';
+import { SaberConfigurationFormState } from '../form/configurationForm';
 
 export default function LevelMapForm() {
   const {
     control,
     formState: { errors },
-  } = useFormContext<ConfigurationFormState>();
+  } = useFormContext<SaberConfigurationFormState>();
   return (
     <Container
       header={<Header variant="h2">Choose Beat Saber map files</Header>}

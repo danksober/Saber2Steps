@@ -12,7 +12,10 @@ import {
   SpaceBetween,
 } from '@cloudscape-design/components';
 import { Controller, useFormContext } from 'react-hook-form';
-import { ConfigurationFormState, useLinkForm } from '../form/configurationForm';
+import {
+  SaberConfigurationFormState,
+  useLinkForm,
+} from '../form/configurationForm';
 import SaberFileForm from './SaberFileForm';
 import LevelMapForm from './LevelMapForm';
 import { useState } from 'react';
@@ -22,7 +25,8 @@ import { useAtom } from 'jotai';
 import { mapIdAtom } from './formState';
 
 export default function BeatSaberInputForm() {
-  const { control, watch, setValue } = useFormContext<ConfigurationFormState>();
+  const { control, watch, setValue } =
+    useFormContext<SaberConfigurationFormState>();
   const {
     control: linkControl,
     trigger,

@@ -1,13 +1,13 @@
 import { MapDataV3, MapDataV2, MapInfoDataV2 } from '../types/mapTypes';
 import { StepChart } from '../types/stepTypes';
 import { StepBuilder } from './StepBuilder';
-import { ConfigurationFormState } from '../form/configurationForm';
+import { SaberConfigurationFormState } from '../form/configurationForm';
 import { readFileSync } from '../constants/fileReader';
 
 const ITG_LEVEL_MAP = ['Challenge', 'Hard', 'Medium', 'Easy', 'Beginner'];
 
 export const useParseSaber = () => {
-  const parse = async (formState: ConfigurationFormState) => {
+  const parse = async (formState: SaberConfigurationFormState) => {
     const saberParser = new SaberParser(
       formState.infoFile,
       formState.chartFiles,

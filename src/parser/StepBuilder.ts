@@ -175,11 +175,10 @@ export class StepBuilder {
         const integer = Math.floor(note._time);
         const fraction = note._time - integer;
 
-          beatsPerMeasure = Math.max(
-            beatsPerMeasure,
-            this.getBeatsPerMeasureForFraction(fraction),
-          );
-        
+        beatsPerMeasure = Math.max(
+          beatsPerMeasure,
+          this.getBeatsPerMeasureForFraction(fraction),
+        );
       }
       byMeasure.beatsPerMeasure = beatsPerMeasure;
     }

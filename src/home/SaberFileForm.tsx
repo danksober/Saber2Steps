@@ -9,13 +9,13 @@ import {
 } from '@cloudscape-design/components';
 import { commonFileUploadProps } from '../constants/fileUpload';
 import { Controller, useFormContext } from 'react-hook-form';
-import { ConfigurationFormState } from '../form/configurationForm';
+import { SaberConfigurationFormState } from '../form/configurationForm';
 
 export default function SaberFileForm() {
   const {
     control,
     formState: { errors },
-  } = useFormContext<ConfigurationFormState>();
+  } = useFormContext<SaberConfigurationFormState>();
   return (
     <Container
       header={

@@ -2,7 +2,11 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-export interface ConfigurationFormState {
+type JumpMode = 'swing' | 'twohands' | 'both';
+type CrossoverMode = 'true' | 'false';
+type HandsMode = 'true' | 'false';
+
+export interface SaberConfigurationFormState {
   infoFile: File;
   musicFile: File;
   chartFiles: File[];
@@ -10,7 +14,16 @@ export interface ConfigurationFormState {
   inputType?: 'link' | 'manual';
 }
 
-const mapValidationSchema = Yup.object().shape({
+export interface StepConfigurationFormState {
+  crossover?: CrossoverMode;
+  hands?: HandsMode;
+  jumpMode?: JumpMode;
+  minGapForAutoSnapping?: number;
+  minGapForDoubleTap?: number; // min double tap default 8th notes
+  minGapForJumps?: number; // min gap for jumps default 8th notes otherwise the note will be single
+}
+
+const mapValidationSchema = Yup.object<SaberConfigurationFormState>().shape({
   inputType: Yup.mixed(),
   mapLink: Yup.string(),
   infoFile: Yup.mixed<File>().required('Please add Beat Saber info file'),
@@ -31,6 +44,15 @@ const linkValidationSchema = Yup.object().shape({
     ),
 });
 
+const stepValidationSchema = Yup.object<StepConfigurationFormState>().shape({
+  crossover: Yup.string<CrossoverMode>(),
+  jumpMode: Yup.string<JumpMode>(),
+  hands: Yup.string<HandsMode>(),
+  minGapForDoubleTap: Yup.number().min(4).max(32),
+  minGapForJumps: Yup.number().min(4).max(32),
+  minGapForAutoSnapping: Yup.number().min(8).max(32),
+});
+
 interface LinkFormState {
   mapLink: string;
 }
@@ -43,8 +65,23 @@ export const useLinkForm = () => {
   return useFormReturn;
 };
 
+export const useStepConfigForm = () => {
+  const useFormReturn = useForm<StepConfigurationFormState>({
+    defaultValues: {
+      jumpMode: 'swing',
+      minGapForDoubleTap: 8,
+      minGapForJumps: 8,
+      minGapForAutoSnapping: 16,
+      crossover: 'false',
+      hands: 'false',
+    },
+    resolver: yupResolver(stepValidationSchema),
+  });
+  return useFormReturn;
+};
+
 export const useMapConfigurationForm = () => {
-  const useFormReturn = useForm<ConfigurationFormState>({
+  const useFormReturn = useForm<SaberConfigurationFormState>({
     defaultValues: {
       chartFiles: [],
       inputType: 'link',

@@ -1,4 +1,4 @@
-import { ConfigurationFormState } from '../form/configurationForm';
+import { SaberConfigurationFormState } from '../form/configurationForm';
 import JSZip from 'jszip';
 import { convertToFile } from './fileReader';
 import { MapInfoDataV2 } from '../types/mapTypes';
@@ -8,7 +8,7 @@ const INFO_FILE_NAME2 = 'info.dat';
 
 export const getMapInfo = async (
   mapId: string,
-): Promise<ConfigurationFormState> => {
+): Promise<SaberConfigurationFormState> => {
   const mapInfo = await fetch(
     `https://api.beatsaver.com/maps/id/${mapId}`,
   ).then((res) => res.json());

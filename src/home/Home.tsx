@@ -10,14 +10,19 @@ import { stepChartAtom } from './formState';
 import { useParseSaber } from '../parser/SaberParser';
 import StepCharts from './StepCharts';
 import { StepOutputBuilder } from '../parser/StepOutputBuilder';
-import { useMapConfigurationForm } from '../form/configurationForm';
+import {
+  useMapConfigurationForm,
+  useStepConfigForm,
+} from '../form/configurationForm';
 import { FormProvider } from 'react-hook-form';
 import BeatSaberInputForm from './BeatSaberInputForm';
+import StepConfiguration from './StepConfiguration';
 
 export default function Home() {
   const [stepChart, setStepChart] = useAtom(stepChartAtom);
 
   const formMethods = useMapConfigurationForm();
+  const stepFormMethods = useStepConfigForm();
   const parse = useParseSaber();
   const [parseError, setParseError] = useState<string>();
 
@@ -89,12 +94,19 @@ export default function Home() {
             ),
           },
           {
-            title: 'Stepmania',
+            title: 'Step configuration',
+            description:
+              'Use this section to configure the Stepmania output options, such as jumps and crossovers',
+            isOptional: true,
             content: (
-              <SpaceBetween size="xs">
-                <StepCharts />
-              </SpaceBetween>
+              <FormProvider {...stepFormMethods}>
+                <StepConfiguration />
+              </FormProvider>
             ),
+          },
+          {
+            title: 'Step output',
+            content: <StepCharts />,
           },
         ]}
       />
