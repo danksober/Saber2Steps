@@ -14,8 +14,13 @@ import { SaberConfigurationFormState } from '../form/configurationForm';
 export default function SaberFileForm() {
   const {
     control,
+    watch,
     formState: { errors },
   } = useFormContext<SaberConfigurationFormState>();
+
+  const watchInfo = watch('infoFile');
+  const watchMusic = watch('musicFile');
+  const watchBackground = watch('backgroundFile');
   return (
     <Container
       header={
@@ -51,7 +56,7 @@ export default function SaberFileForm() {
               constraintText="File name should be like info.dat"
             >
               <FileUpload
-                value={field.value ? [field.value] : []}
+                value={watchInfo ? [watchInfo] : []}
                 onChange={({ detail }) => field.onChange(detail.value[0])}
                 {...commonFileUploadProps}
                 accept=".dat"
@@ -71,7 +76,7 @@ export default function SaberFileForm() {
               constraintText=".mp3,.egg or .ogg format"
             >
               <FileUpload
-                value={field.value ? [field.value] : []}
+                value={watchMusic ? [watchMusic] : []}
                 onChange={({ detail }) => field.onChange(detail.value[0])}
                 {...commonFileUploadProps}
                 accept=".mp3,.ogg,.egg"
@@ -91,7 +96,7 @@ export default function SaberFileForm() {
               constraintText=".jpg, .jpeg, .png etc."
             >
               <FileUpload
-                value={field.value ? [field.value] : []}
+                value={watchBackground ? [watchBackground] : []}
                 onChange={({ detail }) => field.onChange(detail.value[0])}
                 {...commonFileUploadProps}
                 accept=".jpg,.jpeg,.png,.tif,.bmp"

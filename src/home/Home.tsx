@@ -30,7 +30,7 @@ export default function Home() {
 
   const onNavigate = async (e: WizardProps.NavigateDetail) => {
     setParseError(undefined);
-    if (e.reason === 'next') {
+    if (e.requestedStepIndex === 1) {
       const isValid = await formMethods.trigger();
       if (isValid) {
         parse(formMethods.getValues())
