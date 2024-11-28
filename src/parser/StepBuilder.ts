@@ -8,7 +8,34 @@ type StepBuilderConfig = Omit<StepChart, 'charts'> & {
 };
 
 const DEFAULT_BEATS_PER_MEASURE = 4;
-const MAX_BEATS_PER_MEASURE = 32;
+
+const POSSIBLE_BEATS_PER_MEASURE = [4, 8, 12, 16, 24, 32, 48, 64];
+
+function generateFractions(maxBeatsPerMeasure: number, shouldIncludeSubfractions: boolean = false) {
+  let res = 0;
+  const fractions: number[] = [];
+  while (res <= 1) {
+    fractions.push(+res.toFixed(3));
+    res += (1 / maxBeatsPerMeasure) * 4;
+  }
+  if (!shouldIncludeSubfractions) {
+    return fractions;
+  }
+  if (maxBeatsPerMeasure === 12) {
+    const _fractions = generateFractions(8);
+    fractions.push(..._fractions);
+  } else if (maxBeatsPerMeasure === 24) {
+    const _fractions = generateFractions(16);
+    fractions.push(..._fractions);
+  }
+  return fractions;
+}
+
+const FRACTIONS = POSSIBLE_BEATS_PER_MEASURE.reduce<{[note: number]: number[]}>((acc, cur) => {
+  const fractions = generateFractions(cur);
+  acc[cur] = fractions;
+  return acc;
+}, {});
 
 export class StepBuilder {
   config: StepBuilderConfig;
@@ -21,16 +48,9 @@ export class StepBuilder {
   private _fractions: number[] = [];
   constructor(StepConfig: StepBuilderConfig) {
     this.config = StepConfig;
-    this.generateFractions();
+    this._fractions = generateFractions(24, true).sort();
   }
 
-  private generateFractions() {
-    let res = 0;
-    while (res <= 1) {
-      this._fractions.push(res);
-      res += (1 / MAX_BEATS_PER_MEASURE) * 4;
-    }
-  }
 
   build(): Chart {
     const chart = this.mapToChart(this.config.mapNotes);
@@ -72,12 +92,15 @@ export class StepBuilder {
   }
 
   private getBeatsPerMeasureForFraction(fraction: number) {
-    let beatsPerMeasure = 4;
-    while (fraction !== Math.floor(fraction)) {
-      fraction *= 2;
-      beatsPerMeasure *= 2;
+    for (const beatsPerMeasure of POSSIBLE_BEATS_PER_MEASURE) {
+
+      const fractions = FRACTIONS[beatsPerMeasure];
+      
+      if (fractions.includes(fraction)) {
+        return beatsPerMeasure;
+      }
     }
-    return beatsPerMeasure;
+    return POSSIBLE_BEATS_PER_MEASURE.slice(-1)[0];
   }
 
   private getNeariestFraction(fraction: number) {
@@ -93,12 +116,29 @@ export class StepBuilder {
     return neariestFraction;
   }
 
+  private getLeastCommonMultiple(a: number, b: number) {
+    // Function to compute the greatest common divisor (GCD)
+    function gcd(x: number, y: number): number {
+      while (y !== 0) {
+          let temp = y;
+          y = x % y;
+          x = temp;
+      }
+      return x;
+  }
+
+  // Calculate and return the LCM using the formula
+  return Math.abs(a * b) / gcd(a, b);
+  }
+
   private buildStepNotesForMeasure(
     beatsPerMeasure: number,
     mapNotes: NoteV2[],
     index: number,
   ) {
-    const fraction = DEFAULT_BEATS_PER_MEASURE / beatsPerMeasure;
+    const fractions = FRACTIONS[beatsPerMeasure];
+
+    let fractionIndex = 1;
     let start = index * DEFAULT_BEATS_PER_MEASURE;
     const measure: Measure = [];
     while (start < (index + 1) * DEFAULT_BEATS_PER_MEASURE) {
@@ -134,7 +174,13 @@ export class StepBuilder {
       } else {
         measure.push(['0', '0', '0', '0']);
       }
-      start += fraction;
+
+      start = Math.floor(start) + fractions[fractionIndex];
+      if (fractionIndex >= fractions.length - 1) {
+        fractionIndex = 1;
+      } else {
+        fractionIndex += 1;
+      }
     }
     return measure;
   }
@@ -150,7 +196,7 @@ export class StepBuilder {
         cur: NoteV2,
       ) => {
         const integer = Math.floor(cur._time);
-        const fraction = cur._time - integer;
+        const fraction = +(cur._time - integer).toFixed(3);
         if (!this._fractions.includes(fraction)) {
           const neariestFraction = this.getNeariestFraction(fraction);
           cur._time = Math.floor(cur._time) + neariestFraction;
@@ -173,12 +219,9 @@ export class StepBuilder {
       let beatsPerMeasure = DEFAULT_BEATS_PER_MEASURE;
       for (const note of byMeasure.notes || []) {
         const integer = Math.floor(note._time);
-        const fraction = note._time - integer;
-
-        beatsPerMeasure = Math.max(
-          beatsPerMeasure,
-          this.getBeatsPerMeasureForFraction(fraction),
-        );
+        const fraction = +(note._time - integer).toFixed(3);
+        const beatsPerMeasureForFraction = this.getBeatsPerMeasureForFraction(fraction);
+        beatsPerMeasure = this.getLeastCommonMultiple(beatsPerMeasure, beatsPerMeasureForFraction);
       }
       byMeasure.beatsPerMeasure = beatsPerMeasure;
     }

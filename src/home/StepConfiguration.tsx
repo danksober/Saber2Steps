@@ -15,8 +15,16 @@ const noteGapOptions = [
     label: '8th notes',
   },
   {
+    value: '12',
+    label: '12th notes',
+  },
+  {
     value: '16',
     label: '16th notes',
+  },
+  {
+    value: '24',
+    label: '24th notes',
   },
   {
     value: '32',
@@ -106,7 +114,10 @@ export default function StepConfiguration() {
                     value: field.value?.toString(),
                     label: getNoteSelectionLabel(field.value!),
                   }}
-                  options={noteGapOptions}
+                  options={[{
+                    value: '4',
+                    label: '4th notes',
+                  }, ...noteGapOptions]}
                   onChange={({ detail }) =>
                     field.onChange(+detail.selectedOption.value!)
                   }
