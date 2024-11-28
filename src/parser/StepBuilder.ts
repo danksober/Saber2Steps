@@ -1,3 +1,4 @@
+import { StepConfigurationFormState } from '../form/configurationForm';
 import { NoteV2 } from '../types/mapTypes';
 import { Chart, Measure, StepChart } from '../types/stepTypes';
 
@@ -5,13 +6,16 @@ type StepBuilderConfig = Omit<StepChart, 'charts'> & {
   mapNotes: NoteV2[];
   difficultyName: string;
   meter: string;
-};
+} & StepConfigurationFormState;
 
 const DEFAULT_BEATS_PER_MEASURE = 4;
 
 const POSSIBLE_BEATS_PER_MEASURE = [4, 8, 12, 16, 24, 32, 48, 64];
 
-function generateFractions(maxBeatsPerMeasure: number, shouldIncludeSubfractions: boolean = false) {
+function generateFractions(
+  maxBeatsPerMeasure: number,
+  shouldIncludeSubfractions: boolean = false,
+) {
   let res = 0;
   const fractions: number[] = [];
   while (res <= 1) {
@@ -31,7 +35,9 @@ function generateFractions(maxBeatsPerMeasure: number, shouldIncludeSubfractions
   return fractions;
 }
 
-const FRACTIONS = POSSIBLE_BEATS_PER_MEASURE.reduce<{[note: number]: number[]}>((acc, cur) => {
+const FRACTIONS = POSSIBLE_BEATS_PER_MEASURE.reduce<{
+  [note: number]: number[];
+}>((acc, cur) => {
   const fractions = generateFractions(cur);
   acc[cur] = fractions;
   return acc;
@@ -50,7 +56,6 @@ export class StepBuilder {
     this.config = StepConfig;
     this._fractions = generateFractions(24, true).sort();
   }
-
 
   build(): Chart {
     const chart = this.mapToChart(this.config.mapNotes);
@@ -88,14 +93,13 @@ export class StepBuilder {
     const noteCount = this.jump * 3 + this.hands * 4 + this.tap;
     const notesPerMin = noteCount / songLengthInMins;
     // 300 notes per min is 10
-    return Math.round(( Math.sqrt(notesPerMin) / Math.sqrt(300)) * 10) || 1;
+    return Math.round((Math.sqrt(notesPerMin) / Math.sqrt(300)) * 10) || 1;
   }
 
   private getBeatsPerMeasureForFraction(fraction: number) {
     for (const beatsPerMeasure of POSSIBLE_BEATS_PER_MEASURE) {
-
       const fractions = FRACTIONS[beatsPerMeasure];
-      
+
       if (fractions.includes(fraction)) {
         return beatsPerMeasure;
       }
@@ -120,15 +124,15 @@ export class StepBuilder {
     // Function to compute the greatest common divisor (GCD)
     function gcd(x: number, y: number): number {
       while (y !== 0) {
-          let temp = y;
-          y = x % y;
-          x = temp;
+        let temp = y;
+        y = x % y;
+        x = temp;
       }
       return x;
-  }
+    }
 
-  // Calculate and return the LCM using the formula
-  return Math.abs(a * b) / gcd(a, b);
+    // Calculate and return the LCM using the formula
+    return Math.abs(a * b) / gcd(a, b);
   }
 
   private buildStepNotesForMeasure(
@@ -220,8 +224,12 @@ export class StepBuilder {
       for (const note of byMeasure.notes || []) {
         const integer = Math.floor(note._time);
         const fraction = +(note._time - integer).toFixed(3);
-        const beatsPerMeasureForFraction = this.getBeatsPerMeasureForFraction(fraction);
-        beatsPerMeasure = this.getLeastCommonMultiple(beatsPerMeasure, beatsPerMeasureForFraction);
+        const beatsPerMeasureForFraction =
+          this.getBeatsPerMeasureForFraction(fraction);
+        beatsPerMeasure = this.getLeastCommonMultiple(
+          beatsPerMeasure,
+          beatsPerMeasureForFraction,
+        );
       }
       byMeasure.beatsPerMeasure = beatsPerMeasure;
     }

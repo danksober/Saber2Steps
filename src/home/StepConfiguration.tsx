@@ -114,10 +114,13 @@ export default function StepConfiguration() {
                     value: field.value?.toString(),
                     label: getNoteSelectionLabel(field.value!),
                   }}
-                  options={[{
-                    value: '4',
-                    label: '4th notes',
-                  }, ...noteGapOptions]}
+                  options={[
+                    {
+                      value: '4',
+                      label: '4th notes',
+                    },
+                    ...noteGapOptions,
+                  ]}
                   onChange={({ detail }) =>
                     field.onChange(+detail.selectedOption.value!)
                   }

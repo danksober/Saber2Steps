@@ -1,21 +1,28 @@
 import { MapDataV3, MapDataV2, MapInfoDataV2 } from '../types/mapTypes';
 import { StepChart } from '../types/stepTypes';
 import { StepBuilder } from './StepBuilder';
-import { SaberConfigurationFormState } from '../form/configurationForm';
+import {
+  SaberConfigurationFormState,
+  StepConfigurationFormState,
+} from '../form/configurationForm';
 import { readFileSync } from '../constants/fileReader';
 
 const ITG_LEVEL_MAP = ['Challenge', 'Hard', 'Medium', 'Easy', 'Beginner'];
 
 export const useParseSaber = () => {
-  const parse = async (formState: SaberConfigurationFormState) => {
+  const parse = async (
+    saberFormState: SaberConfigurationFormState,
+    stepFormState: StepConfigurationFormState,
+  ) => {
     const saberParser = new SaberParser(
-      formState.infoFile,
-      formState.chartFiles,
+      saberFormState.infoFile,
+      saberFormState.chartFiles,
+      stepFormState,
     );
     await saberParser.init();
     const stepFile = saberParser.toStepFile();
-    stepFile.background = formState.backgroundFile?.name;
-    stepFile.music = formState.musicFile.name;
+    stepFile.background = saberFormState.backgroundFile?.name;
+    stepFile.music = saberFormState.musicFile.name;
     return stepFile;
   };
   return parse;
@@ -26,13 +33,19 @@ export class SaberParser {
   mapFiles: File[];
 
   private infoData: MapInfoDataV2 | undefined = undefined;
+  private stepConfig: StepConfigurationFormState;
   private chartData:
     | ((MapDataV3 | MapDataV2) & { name: string })[]
     | undefined = undefined;
 
-  constructor(infoFile: File, mapFiles: File[]) {
+  constructor(
+    infoFile: File,
+    mapFiles: File[],
+    stepConfig: StepConfigurationFormState,
+  ) {
     this.infoFile = infoFile;
     this.mapFiles = mapFiles;
+    this.stepConfig = stepConfig;
   }
 
   async init() {
@@ -115,6 +128,7 @@ export class SaberParser {
 
     const stepBuilder = new StepBuilder({
       ...this.getStepChartConfig(),
+      ...this.stepConfig,
       mapNotes: data._notes,
       difficultyName: name,
       meter: '10',

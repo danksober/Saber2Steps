@@ -53,10 +53,26 @@ export default function BeatSaberInputForm() {
         );
         const { chartFiles, infoFile, musicFile, backgroundFile } =
           await getMapInfo(mapId);
-        setValue('backgroundFile', backgroundFile, {shouldDirty: true, shouldValidate: true, shouldTouch: true});
-        setValue('musicFile', musicFile, {shouldDirty: true, shouldValidate: true, shouldTouch: true});
-        setValue('chartFiles', chartFiles, {shouldDirty: true, shouldValidate: true, shouldTouch: true});
-        setValue('infoFile', infoFile, {shouldDirty: true, shouldValidate: true, shouldTouch: true});
+        setValue('backgroundFile', backgroundFile, {
+          shouldDirty: true,
+          shouldValidate: true,
+          shouldTouch: true,
+        });
+        setValue('musicFile', musicFile, {
+          shouldDirty: true,
+          shouldValidate: true,
+          shouldTouch: true,
+        });
+        setValue('chartFiles', chartFiles, {
+          shouldDirty: true,
+          shouldValidate: true,
+          shouldTouch: true,
+        });
+        setValue('infoFile', infoFile, {
+          shouldDirty: true,
+          shouldValidate: true,
+          shouldTouch: true,
+        });
         setMapId(mapId);
         setModal(true);
       } catch (e: any) {

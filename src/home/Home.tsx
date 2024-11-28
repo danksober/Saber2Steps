@@ -33,7 +33,12 @@ export default function Home() {
     if (e.requestedStepIndex === 1) {
       const isValid = await formMethods.trigger();
       if (isValid) {
-        parse(formMethods.getValues())
+        setActiveStepIndex(e.requestedStepIndex);
+      }
+    } else if (e.requestedStepIndex === 2) {
+      const isValid = await stepFormMethods.trigger();
+      if (isValid) {
+        parse(formMethods.getValues(), stepFormMethods.getValues())
           .then((data) => {
             setStepChart(data);
             setActiveStepIndex(e.requestedStepIndex);
