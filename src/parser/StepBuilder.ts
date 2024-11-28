@@ -88,7 +88,7 @@ export class StepBuilder {
     const noteCount = this.jump * 3 + this.hands * 4 + this.tap;
     const notesPerMin = noteCount / songLengthInMins;
     // 300 notes per min is 10
-    return Math.round((notesPerMin / 300) * 10) || 1;
+    return Math.round(( Math.sqrt(notesPerMin) / Math.sqrt(300)) * 10) || 1;
   }
 
   private getBeatsPerMeasureForFraction(fraction: number) {
