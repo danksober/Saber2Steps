@@ -11,6 +11,10 @@ import { StepConfigurationFormState } from '../form/configurationForm';
 
 const noteGapOptions = [
   {
+    value: '4',
+    label: '4th notes',
+  },
+  {
     value: '8',
     label: '8th notes',
   },
@@ -190,11 +194,53 @@ export default function StepConfiguration() {
           ></Controller>
           <Controller
             control={control}
+            name="minGapForTapJumps"
+            render={({ field }) => (
+              <FormField
+                label="Mininum gaps between a tap and a jump"
+                description="The minimum gaps in notes between a tap and a jump, this will prevent consecutive tap jumps in short amount of time"
+              >
+                <Select
+                  selectedOption={{
+                    value: field.value?.toString(),
+                    label: getNoteSelectionLabel(field.value!),
+                  }}
+                  options={noteGapOptions}
+                  onChange={({ detail }) =>
+                    field.onChange(+detail.selectedOption.value!)
+                  }
+                />
+              </FormField>
+            )}
+          ></Controller>
+          <Controller
+            control={control}
             name="minGapForDoubleTap"
             render={({ field }) => (
               <FormField
                 label="Mininum gaps between double taps"
                 description="The minimum gaps in notes between two consecutive same note taps, this will prevent double taps in short amount of time"
+              >
+                <Select
+                  selectedOption={{
+                    value: field.value?.toString(),
+                    label: getNoteSelectionLabel(field.value!),
+                  }}
+                  options={noteGapOptions}
+                  onChange={({ detail }) =>
+                    field.onChange(+detail.selectedOption.value!)
+                  }
+                />
+              </FormField>
+            )}
+          ></Controller>
+             <Controller
+            control={control}
+            name="minGapForJumpTap"
+            render={({ field }) => (
+              <FormField
+                label="Mininum gaps for a tap right after a jump"
+                description="The minimum gaps in for a tap right after a jump, this will prevent quick taps after jumps in short amount of time"
               >
                 <Select
                   selectedOption={{

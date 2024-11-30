@@ -22,6 +22,8 @@ export interface StepConfigurationFormState {
   minGapForCrossovers?: number;
   minGapForDoubleTap?: number; // min double tap default 8th notes
   minGapForJumps?: number; // min gap for jumps default 8th notes otherwise the note will be single
+  minGapForTapJumps?: number;
+  minGapForJumpTap?: number; // min gap for tap right after a jump
 }
 
 const mapValidationSchema = Yup.object<SaberConfigurationFormState>().shape({
@@ -52,7 +54,9 @@ const stepValidationSchema = Yup.object<StepConfigurationFormState>().shape({
   minGapForCrossovers: Yup.number().min(4).max(32),
   minGapForDoubleTap: Yup.number().min(4).max(32),
   minGapForJumps: Yup.number().min(4).max(32),
-  minGapForAutoSnapping: Yup.number().min(8).max(32),
+  minGapForTapJumps: Yup.number().min(4).max(32),
+  minGapForAutoSnapping: Yup.number().min(4).max(32),
+  minGapForJumpTap: Yup.number().min(4).max(32),
 });
 
 interface LinkFormState {
@@ -72,9 +76,11 @@ export const useStepConfigForm = () => {
     defaultValues: {
       jumpMode: 'swing',
       minGapForDoubleTap: 8,
+      minGapForTapJumps: 8,
+      minGapForJumpTap: 8,
       minGapForJumps: 8,
       minGapForCrossovers: 4,
-      minGapForAutoSnapping: 16,
+      minGapForAutoSnapping: 32,
       crossover: 'true',
       hands: 'false',
     },

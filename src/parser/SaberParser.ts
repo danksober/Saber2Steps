@@ -139,10 +139,10 @@ export class SaberParser {
   private parseMapDataV3(data: MapDataV3) {
     const v2Data: MapDataV2 = {
       _notes: data.colorNotes.map((note) => ({
-        _cutDirection: note.c,
+        _cutDirection: note.a,
         _lineIndex: note.x,
         _lineLayer: note.y,
-        _type: note.a,
+        _type: note.c,
         _time: note.b,
       })),
       _obstacles: [],

@@ -10,7 +10,7 @@ type StepBuilderConfig = Omit<StepChart, 'charts'> & {
 
 const DEFAULT_BEATS_PER_MEASURE = 4;
 
-const POSSIBLE_BEATS_PER_MEASURE = [4, 8, 12, 16, 24, 32, 48, 64];
+const POSSIBLE_BEATS_PER_MEASURE = [4, 8, 12, 16, 24, 32, 48, 64, 96, 128];
 
 function generateFractions(
   maxBeatsPerMeasure: number,
@@ -31,8 +31,14 @@ function generateFractions(
   } else if (maxBeatsPerMeasure === 24) {
     const _fractions = generateFractions(16);
     fractions.push(..._fractions);
+  } else if (maxBeatsPerMeasure === 16) {
+    const _fractions = generateFractions(12);
+    fractions.push(..._fractions);
+  } else if (maxBeatsPerMeasure === 32) {
+    const _fractions = generateFractions(24);
+    fractions.push(..._fractions);
   }
-  return fractions;
+  return Array.from(new Set<number>(fractions)).sort();
 }
 
 const FRACTIONS = POSSIBLE_BEATS_PER_MEASURE.reduce<{
@@ -54,7 +60,10 @@ export class StepBuilder {
   private _fractions: number[] = [];
   constructor(StepConfig: StepBuilderConfig) {
     this.config = StepConfig;
-    this._fractions = generateFractions(24, true).sort();
+    this._fractions = generateFractions(
+      this.config.minGapForAutoSnapping || 24,
+      true,
+    );
   }
 
   build(): Chart {
@@ -135,51 +144,213 @@ export class StepBuilder {
     return Math.abs(a * b) / gcd(a, b);
   }
 
+  private countNotes(notes: string[]) {
+    const noteCount = notes.filter((note) => note === '1').length;
+    const minesCount = notes.filter((note) => note === 'M').length;
+    this.mines += minesCount;
+    if (noteCount === 1) {
+      this.tap += 1;
+    } else if (noteCount === 2) {
+      this.jump += 1;
+      this.tap += 1;
+    } else if (noteCount > 2) {
+      this.hands += 1;
+      this.jump += 1;
+      this.tap += 1;
+    }
+  }
+
+  private _previousTimeNotes: { note: string[] | undefined; time: number } = {
+    note: undefined,
+    time: -1,
+  };
+
+  private _previousFoot: 'left' | 'right' | undefined = undefined;
+
+  private getLocationForNotes(
+    previousPositions: number[],
+    currentLocations: number[],
+    beatGap: number,
+  ): number[] {
+    const {
+      crossover,
+      hands,
+      minGapForCrossovers,
+      minGapForDoubleTap,
+      minGapForTapJumps,
+      minGapForJumpTap,
+      minGapForJumps,
+    } = this.config;
+    if (currentLocations.length === 1) {
+      if (
+        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForDoubleTap! &&
+        previousPositions.join('') === currentLocations.join('')
+      ) {
+        currentLocations[0] = (currentLocations[0] + 1) % 4;
+        return this.getLocationForNotes(previousPositions, currentLocations, beatGap);
+      } else if (beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumpTap!) {
+        return [];
+      } 
+      else if (crossover === 'false' || beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForCrossovers!) {
+        let currentFoot: 'left' | 'right' = 'left';
+        if (currentLocations[0] === 0) {
+          currentFoot = 'left';
+        } else if (currentLocations[0] === 3) {
+          currentFoot = 'right';
+        }
+        if (this._previousFoot === currentFoot) {
+          currentLocations[0] = (currentLocations[0] + 1) % 4;
+          return this.getLocationForNotes(previousPositions, currentLocations, beatGap);
+        }
+      }
+      return currentLocations;
+    } else if (currentLocations.length >= 2) {
+      if (hands === 'false') {
+        currentLocations = currentLocations.slice(0, 2);
+      }
+      if (
+        previousPositions.length > 1 &&
+        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumps!
+      ) {
+        currentLocations = currentLocations.slice(0, 1);
+        return this.getLocationForNotes(
+          previousPositions,
+          currentLocations,
+          beatGap,
+        );
+      } else if (
+        previousPositions.length === 1 &&
+        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForTapJumps!
+      ) {
+        currentLocations = currentLocations.slice(0, 1);
+        return this.getLocationForNotes(
+          previousPositions,
+          currentLocations,
+          beatGap,
+        );
+      } else {
+        return currentLocations;
+      }
+    }
+    return currentLocations;
+  }
+
+  private buildNotes(currentTimeNotes: NoteV2[]) {
+    let beatGap = Number.MAX_SAFE_INTEGER;
+    if (this._previousTimeNotes.time > 0) {
+      beatGap = currentTimeNotes[0]._time - this._previousTimeNotes.time;
+    }
+    const notes = ['0', '0', '0', '0'];
+    let currentLocations: number[] = [];
+    const notesIndexMap = currentTimeNotes
+      .filter((note) => note._type !== 3)
+      .reduce<{ [type: number]: number[] }>((acc, cur) => {
+        const direction = cur._type;
+        if (!acc[direction]) {
+          acc[direction] = [cur._lineIndex];
+        } else {
+          if (acc[direction].includes(cur._lineIndex)) {
+            const newIndex = (cur._lineIndex + 1) % 4;
+            acc[direction].push(newIndex);
+          } else {
+            acc[direction].push(cur._lineIndex);
+          }
+        }
+        return acc;
+      }, {});
+    if (Object.keys(notesIndexMap).length === 1) {
+      currentLocations = Object.values(notesIndexMap)[0];
+    } else {
+      const handIndices = Object.values(notesIndexMap);
+      const swingIndices = handIndices.filter((indices) => indices.length >= 2);
+      if (this.config.jumpMode == 'swing') {
+        currentLocations = Array.from(new Set(swingIndices.flat()).values());
+        // treating two hands as one note here
+        if (!currentLocations.length) {
+          currentLocations = handIndices.flat().slice(0, 1);
+        }
+      } else if (this.config.jumpMode == 'both') {
+        const twoHandIndices = Array.from(new Set(handIndices.flat()));
+        if (twoHandIndices.length <= 1) {
+          const newIndex = (twoHandIndices[0] + 1) % 4;
+          twoHandIndices.push(newIndex);
+        }
+        currentLocations = twoHandIndices;
+      } else if (this.config.jumpMode == 'twohands') {
+        // treating swings as one note here
+        const twoHandIndices = Array.from(
+          new Set(
+            handIndices.map((indices) => indices.slice(0, 1)).flat(),
+          ).values(),
+        );
+        if (twoHandIndices.length <= 1) {
+          const newIndex = (twoHandIndices[0] + 1) % 4;
+          twoHandIndices.push(newIndex);
+        }
+        currentLocations = twoHandIndices;
+      }
+    }
+    const previousPositions: number[] = [];
+    (this._previousTimeNotes.note || []).forEach((_note, index) => {
+      if (_note === '1') {
+        previousPositions.push(index);
+      }
+    });
+    const locations = this.getLocationForNotes(
+      previousPositions,
+      currentLocations,
+      beatGap,
+    );
+
+    for (const location of locations || []) {
+      notes[location] = '1';
+    }
+
+    // for (let i = 0; i < 4; i++) {
+    //   const possibleNote = currentTimeNotes.find(
+    //     (note) => note._lineIndex === i,
+    //   );
+    //   if (possibleNote) {
+    //     if (possibleNote._type === 3) {
+    //       this.mines += 1;
+    //     }
+    //     const note = possibleNote._type !== 3 ? '1' : 'M';
+    //     notes.push(note);
+    //   } else {
+    //     notes.push('0');
+    //   }
+    // }
+
+    this.countNotes(notes);
+    return notes;
+  }
+
   private buildStepNotesForMeasure(
     beatsPerMeasure: number,
     mapNotes: NoteV2[],
     index: number,
   ) {
     const fractions = FRACTIONS[beatsPerMeasure];
-
     let fractionIndex = 1;
     let start = index * DEFAULT_BEATS_PER_MEASURE;
     const measure: Measure = [];
     while (start < (index + 1) * DEFAULT_BEATS_PER_MEASURE) {
       const possibleNotes = mapNotes.filter((note) => note._time === start);
       if (possibleNotes.length) {
-        const notes = [];
-        for (let i = 0; i < 4; i++) {
-          const possibleNote = possibleNotes.find(
-            (note) => note._lineIndex === i,
-          );
-          if (possibleNote) {
-            if (possibleNote._type === 3) {
-              this.mines += 1;
-            }
-            const note = possibleNote._type !== 3 ? '1' : 'M';
-            notes.push(note);
-          } else {
-            notes.push('0');
-          }
+        const note = this.buildNotes(possibleNotes);
+        measure.push(note);
+        if (possibleNotes.find((note) => note._type !== 3)) {
+          this._previousTimeNotes = { note, time: start };
         }
-        const noteCount = notes.filter((note) => note === '1').length;
-        if (noteCount === 1) {
-          this.tap += 1;
-        } else if (noteCount === 2) {
-          this.jump += 1;
-          this.tap += 1;
-        } else if (noteCount > 2) {
-          this.hands += 1;
-          this.jump += 1;
-          this.tap += 1;
-        }
-        measure.push(notes);
       } else {
         measure.push(['0', '0', '0', '0']);
       }
+      try {
+        start = Math.floor(start) + fractions[fractionIndex];
+      } catch (e) {
+        console.error(e, FRACTIONS, beatsPerMeasure);
+      }
 
-      start = Math.floor(start) + fractions[fractionIndex];
       if (fractionIndex >= fractions.length - 1) {
         fractionIndex = 1;
       } else {
@@ -233,7 +404,8 @@ export class StepBuilder {
       }
       byMeasure.beatsPerMeasure = beatsPerMeasure;
     }
-
+    console.log(notes);
+    console.log();
     console.log(notesByMeasure);
 
     for (let i = 0; i < numberOfMeasures; i++) {

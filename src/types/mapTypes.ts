@@ -43,7 +43,7 @@ export interface MapDataV2 {
 }
 
 export interface NoteV2 {
-  _cutDirection: number; // directions of the cuts
+  _cutDirection: number; // 0 is left hand, 1 is right hand
   _lineIndex: number; // horizontal index, leftmost, left, right, rightmost 0-3
   _lineLayer: number; // vertical height from -1 to 1
   _type: number; // 0 is left hand 1 right hand
