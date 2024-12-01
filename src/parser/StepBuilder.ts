@@ -188,11 +188,11 @@ export class StepBuilder {
       ) {
         currentLocations[0] = (currentLocations[0] + 1) % 4;
         return this.getLocationForNotes(previousPositions, currentLocations, beatGap);
-      } else if (beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumpTap!) {
+      } else if (beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumpTap! && previousPositions.length > 1) {
         return [];
-      } 
+      }
       else if (crossover === 'false' || beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForCrossovers!) {
-        let currentFoot: 'left' | 'right' = 'left';
+        let currentFoot: 'left' | 'right' | undefined = undefined;
         if (currentLocations[0] === 0) {
           currentFoot = 'left';
         } else if (currentLocations[0] === 3) {
@@ -201,6 +201,19 @@ export class StepBuilder {
         if (this._previousFoot === currentFoot) {
           currentLocations[0] = (currentLocations[0] + 1) % 4;
           return this.getLocationForNotes(previousPositions, currentLocations, beatGap);
+        }
+      }
+      // is double tap foot location unchanged
+      if (previousPositions.join('') === currentLocations.join('')) {
+        this._previousFoot = this._previousFoot;
+      } else {
+        if (currentLocations[0] === 0) {
+          this._previousFoot = 'left';
+        } else if (currentLocations[0] === 3) {
+          this._previousFoot = 'right';
+        }
+        else {
+          this._previousFoot = this._previousFoot === 'left' ? 'right' : 'left';
         }
       }
       return currentLocations;
@@ -296,15 +309,22 @@ export class StepBuilder {
         previousPositions.push(index);
       }
     });
+
     const locations = this.getLocationForNotes(
       previousPositions,
       currentLocations,
       beatGap,
     );
+    if (locations.length > 1) {
+      this._previousFoot = undefined;
+    }
 
     for (const location of locations || []) {
       notes[location] = '1';
     }
+
+
+
 
     // for (let i = 0; i < 4; i++) {
     //   const possibleNote = currentTimeNotes.find(
