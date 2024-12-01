@@ -198,7 +198,7 @@ export class StepBuilder {
         } else if (currentLocations[0] === 3) {
           currentFoot = 'right';
         }
-        if (this._previousFoot === currentFoot) {
+        if (this._previousFoot && this._previousFoot === currentFoot) {
           currentLocations[0] = (currentLocations[0] + 1) % 4;
           return this.getLocationForNotes(previousPositions, currentLocations, beatGap);
         }
@@ -323,7 +323,24 @@ export class StepBuilder {
       notes[location] = '1';
     }
 
+    const bombs = currentTimeNotes.filter(note => note._type === 3);
+    this.mines += bombs.length;
+    let bombCount = bombs.length;
+    for (const bomb of bombs) {
+      if (notes[bomb._lineIndex] !== '1') {
+        notes[bomb._lineIndex] = 'M';
+        bombCount--;
+      }
+    }
 
+    if (bombCount) {
+      for (let i = 0; i < 4; i++) {
+        if (notes[i] !== '0' && bombCount) {
+          notes[i] = 'M';
+          bombCount--;
+        }
+      }
+    }
 
 
     // for (let i = 0; i < 4; i++) {
