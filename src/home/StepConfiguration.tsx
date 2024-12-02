@@ -234,7 +234,7 @@ export default function StepConfiguration() {
               </FormField>
             )}
           ></Controller>
-             <Controller
+          <Controller
             control={control}
             name="minGapForJumpTap"
             render={({ field }) => (

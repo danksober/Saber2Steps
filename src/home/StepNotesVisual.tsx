@@ -14,7 +14,7 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
     <ChartVisualContainer>
       <NotesContainer>
         {measures.map((measure, index) => (
-          <MeasureContainer measure={measure} key={index} />
+          <MeasureContainer measure={measure} key={index} index={index} />
         ))}
       </NotesContainer>
     </ChartVisualContainer>
@@ -25,13 +25,13 @@ const BEATS_PER_MEASURE = 4;
 const BEATS = new Array(BEATS_PER_MEASURE).fill(0);
 const PADDING_PER_BEAT = '200px';
 
-const MeasureContainer = ({ measure }: { measure: Measure }) => {
+const MeasureContainer = ({ measure, index: measureIndex }: { measure: Measure, index: number }) => {
   const noteSize = measure.length;
   return (
     <StyledMeasureContainer>
-      <BeatContainer>
+      <BeatContainer index={measureIndex.toString()}>
         {BEATS.map((_, index) => (
-          <Beat key={index} ishighlighted={index === 0 ? 'true' : 'false'} />
+          <Beat key={index} ishighlighted={index === 0 ? 'true' : 'false'}></Beat>
         ))}
       </BeatContainer>
       <NotesWrapper>
@@ -52,9 +52,10 @@ const MeasureContainer = ({ measure }: { measure: Measure }) => {
 const COLORS = {
   4: 'red',
   8: 'blue',
+  12: 'purple',
   16: 'yellow',
-  32: 'green',
-  64: 'purple',
+  24: 'green',
+  32: 'lightgreen',
 };
 
 const getNoteColor = (index: number, noteSize: number) => {
@@ -151,9 +152,11 @@ const StyledMine = styled.div`
 `;
 
 const Beat = styled.div<BeatProps>`
+  & {
     padding-bottom: ${PADDING_PER_BEAT};
     width: 100%;
     border-top: ${(props) => (props.ishighlighted === 'false' ? `1px solid ${awsui.colorTextButtonNormalDisabled}` : `1.5px solid ${awsui.colorTextBodyDefault}`)};
+  }
 `;
 
 const StyledMeasureContainer = styled.div`
@@ -161,8 +164,19 @@ const StyledMeasureContainer = styled.div`
     top: 0;
 `;
 
-const BeatContainer = styled.div`
-    
+interface StyledBeatProps {
+  index: string;
+}
+
+const BeatContainer = styled.div<StyledBeatProps>`
+    position: relative;
+    &:before {
+      content: "${(props) => props.index}";
+      position: absolute;
+      right: calc(100% + 20px);
+      width: 30px;
+      top: -10px;
+    }
 `;
 
 const StyledNotePosition = styled.div`

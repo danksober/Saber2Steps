@@ -187,11 +187,20 @@ export class StepBuilder {
         previousPositions.join('') === currentLocations.join('')
       ) {
         currentLocations[0] = (currentLocations[0] + 1) % 4;
-        return this.getLocationForNotes(previousPositions, currentLocations, beatGap);
-      } else if (beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumpTap! && previousPositions.length > 1) {
+        return this.getLocationForNotes(
+          previousPositions,
+          currentLocations,
+          beatGap,
+        );
+      } else if (
+        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumpTap! &&
+        previousPositions.length > 1
+      ) {
         return [];
-      }
-      else if (crossover === 'false' || beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForCrossovers!) {
+      } else if (
+        crossover === 'false' ||
+        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForCrossovers!
+      ) {
         let currentFoot: 'left' | 'right' | undefined = undefined;
         if (currentLocations[0] === 0) {
           currentFoot = 'left';
@@ -200,7 +209,11 @@ export class StepBuilder {
         }
         if (this._previousFoot && this._previousFoot === currentFoot) {
           currentLocations[0] = (currentLocations[0] + 1) % 4;
-          return this.getLocationForNotes(previousPositions, currentLocations, beatGap);
+          return this.getLocationForNotes(
+            previousPositions,
+            currentLocations,
+            beatGap,
+          );
         }
       }
       // is double tap foot location unchanged
@@ -211,8 +224,7 @@ export class StepBuilder {
           this._previousFoot = 'left';
         } else if (currentLocations[0] === 3) {
           this._previousFoot = 'right';
-        }
-        else {
+        } else {
           this._previousFoot = this._previousFoot === 'left' ? 'right' : 'left';
         }
       }
@@ -323,7 +335,7 @@ export class StepBuilder {
       notes[location] = '1';
     }
 
-    const bombs = currentTimeNotes.filter(note => note._type === 3);
+    const bombs = currentTimeNotes.filter((note) => note._type === 3);
     this.mines += bombs.length;
     let bombCount = bombs.length;
     for (const bomb of bombs) {
@@ -341,7 +353,6 @@ export class StepBuilder {
         }
       }
     }
-
 
     // for (let i = 0; i < 4; i++) {
     //   const possibleNote = currentTimeNotes.find(
@@ -376,7 +387,7 @@ export class StepBuilder {
       if (possibleNotes.length) {
         const note = this.buildNotes(possibleNotes);
         measure.push(note);
-        if (possibleNotes.find((note) => note._type !== 3)) {
+        if (note.find(n => n === '1')) {
           this._previousTimeNotes = { note, time: start };
         }
       } else {
