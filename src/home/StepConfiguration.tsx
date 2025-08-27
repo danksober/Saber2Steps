@@ -7,7 +7,7 @@ import {
   SpaceBetween,
 } from '@cloudscape-design/components';
 import { Controller, useFormContext } from 'react-hook-form';
-import { StepConfigurationFormState } from '../form/configurationForm';
+import type { StepConfigurationFormState } from '../form/configurationForm';
 
 const noteGapOptions = [
   {

@@ -1,4 +1,4 @@
-import { FileUploadProps } from '@cloudscape-design/components';
+import type { FileUploadProps } from '@cloudscape-design/components';
 
 export const fileUploadI18n: FileUploadProps['i18nStrings'] = {
   uploadButtonText: (e) => (e ? 'Choose files' : 'Choose file'),

@@ -1,7 +1,7 @@
-import { SaberConfigurationFormState } from '../form/configurationForm';
 import JSZip from 'jszip';
+import type { SaberConfigurationFormState } from '../form/configurationForm';
+import type { MapInfoDataV2 } from '../types/mapTypes';
 import { convertToFile } from './fileReader';
-import { MapInfoDataV2 } from '../types/mapTypes';
 
 const INFO_FILE_NAME = 'Info.dat';
 const INFO_FILE_NAME2 = 'info.dat';

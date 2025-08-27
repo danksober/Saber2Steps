@@ -4,7 +4,7 @@ import {
   KeyValuePairs,
   SpaceBetween,
   Tabs,
-  TabsProps,
+  type TabsProps,
 } from '@cloudscape-design/components';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ export default function StepCharts() {
   const [tabId, setTabId] = useState(stepChart?.charts?.[0]?.name);
 
   if (!stepChart) {
+    // biome-ignore lint/complexity/noUselessFragments: it's a placeholder
     return <></>;
   }
 

@@ -1,6 +1,6 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
 
 type JumpMode = 'swing' | 'twohands' | 'both';
 type CrossoverMode = 'true' | 'false';
@@ -42,7 +42,7 @@ const linkValidationSchema = Yup.object().shape({
   mapLink: Yup.string()
     .required('Please enter a valid Beat Saber map link')
     .matches(
-      /^https:\/\/beatsaver\.com\/maps\/([a-zA-Z0-9\-]+)$/,
+      /^https:\/\/beatsaver\.com\/maps\/([a-zA-Z0-9-]+)$/,
       'Link does not match pattern /^https://beatsaver.com/maps/([a-zA-Z0-9-]+)$/',
     ),
 });

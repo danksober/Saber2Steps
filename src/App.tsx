@@ -1,6 +1,6 @@
 import { AppLayout } from '@cloudscape-design/components';
-import Home from './home/Home';
 import { useEffect } from 'react';
+import Home from './home/Home';
 
 const App = () => {
   useEffect(() => {

@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "build": "rsbuild build",
-    "check": "biome check --write",
+    "lint": "npx @biomejs/biome ci",
     "dev": "rsbuild dev --open",
-    "format": "biome format --write",
+    "format": "npx @biomejs/biome check --write",
     "preview": "rsbuild preview"
   },
   "dependencies": {
@@ -23,7 +23,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.3",
+    "@biomejs/biome": "^2.2.2",
     "@rsbuild/core": "^1.0.19",
     "@rsbuild/plugin-react": "^1.0.6",
     "@types/react": "^18.3.12",

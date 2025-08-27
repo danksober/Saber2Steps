@@ -11,18 +11,18 @@ import {
   RadioGroup,
   SpaceBetween,
 } from '@cloudscape-design/components';
-import { Controller, useFormContext } from 'react-hook-form';
-import {
-  SaberConfigurationFormState,
-  useLinkForm,
-} from '../form/configurationForm';
-import SaberFileForm from './SaberFileForm';
-import LevelMapForm from './LevelMapForm';
+import { useAtom } from 'jotai';
 import { useState } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import { getMapInfo } from '../constants/getMapInfo';
-import { useAtom } from 'jotai';
+import {
+  type SaberConfigurationFormState,
+  useLinkForm,
+} from '../form/configurationForm';
 import { mapIdAtom } from './formState';
+import LevelMapForm from './LevelMapForm';
+import SaberFileForm from './SaberFileForm';
 
 export default function BeatSaberInputForm() {
   const { control, watch, setValue } =
@@ -75,8 +75,12 @@ export default function BeatSaberInputForm() {
         });
         setMapId(mapId);
         setModal(true);
-      } catch (e: any) {
-        setError(e.message);
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          setError(e.message);
+        } else {
+          setError('An unknown error occurred.');
+        }
       } finally {
         setLoading(false);
       }

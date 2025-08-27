@@ -1,11 +1,11 @@
-import { MapDataV3, MapDataV2, MapInfoDataV2 } from '../types/mapTypes';
-import { StepChart } from '../types/stepTypes';
-import { StepBuilder } from './StepBuilder';
-import {
+import { readFileSync } from '../constants/fileReader';
+import type {
   SaberConfigurationFormState,
   StepConfigurationFormState,
 } from '../form/configurationForm';
-import { readFileSync } from '../constants/fileReader';
+import type { MapDataV2, MapDataV3, MapInfoDataV2 } from '../types/mapTypes';
+import type { StepChart } from '../types/stepTypes';
+import { StepBuilder } from './StepBuilder';
 
 const ITG_LEVEL_MAP = ['Challenge', 'Hard', 'Medium', 'Easy', 'Beginner'];
 
@@ -94,7 +94,7 @@ export class SaberParser {
   private getChartDifficultyNames(chartData: MapDataV2[]) {
     const length = chartData.length;
     const res = ITG_LEVEL_MAP.slice();
-    let remains = length - ITG_LEVEL_MAP.length;
+    const remains = length - ITG_LEVEL_MAP.length;
     let index = 0;
     while (index < remains) {
       res.splice(index * 2, 0, `${ITG_LEVEL_MAP[index]}_Edit`);

@@ -1,4 +1,4 @@
-import JSZip from 'jszip';
+import type JSZip from 'jszip';
 
 export function readFileSync<T>(file: File): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -22,18 +22,14 @@ export function readFileSync<T>(file: File): Promise<T> {
 export async function convertToFile(
   zipEntry: JSZip.JSZipObject,
 ): Promise<File | undefined> {
-  try {
-    if (!zipEntry) {
-      return;
-    }
-    // Extract the file data as a Blob (use "blob" format)
-    const blob = await zipEntry.async('blob');
-
-    // Create a File object from the Blob
-    const file = new File([blob], zipEntry.name, { type: blob.type });
-
-    return file;
-  } catch (error) {
-    throw error;
+  if (!zipEntry) {
+    return;
   }
+  // Extract the file data as a Blob (use "blob" format)
+  const blob = await zipEntry.async('blob');
+
+  // Create a File object from the Blob
+  const file = new File([blob], zipEntry.name, { type: blob.type });
+
+  return file;
 }

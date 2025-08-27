@@ -7,7 +7,7 @@ import {
   Table,
 } from '@cloudscape-design/components';
 import { Controller, useFormContext } from 'react-hook-form';
-import { SaberConfigurationFormState } from '../form/configurationForm';
+import type { SaberConfigurationFormState } from '../form/configurationForm';
 
 export default function LevelMapForm() {
   const {
@@ -45,7 +45,7 @@ export default function LevelMapForm() {
                 {
                   id: 'size',
                   header: 'File size',
-                  cell: (file) => file.size / 1000 + 'KB',
+                  cell: (file) => `${file.size / 1000}KB`,
                 },
               ]}
               items={field.value || []}

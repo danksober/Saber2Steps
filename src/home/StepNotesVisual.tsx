@@ -1,7 +1,7 @@
-import { Measure } from '../types/stepTypes';
-import styled from 'styled-components';
-import * as awsui from '@cloudscape-design/design-tokens';
 import { Icon } from '@cloudscape-design/components';
+import * as awsui from '@cloudscape-design/design-tokens';
+import styled from 'styled-components';
+import type { Measure } from '../types/stepTypes';
 
 interface StepNotesVisualProps {
   measures: Measure[];
@@ -25,13 +25,22 @@ const BEATS_PER_MEASURE = 4;
 const BEATS = new Array(BEATS_PER_MEASURE).fill(0);
 const PADDING_PER_BEAT = '200px';
 
-const MeasureContainer = ({ measure, index: measureIndex }: { measure: Measure, index: number }) => {
+const MeasureContainer = ({
+  measure,
+  index: measureIndex,
+}: {
+  measure: Measure;
+  index: number;
+}) => {
   const noteSize = measure.length;
   return (
     <StyledMeasureContainer>
       <BeatContainer index={measureIndex.toString()}>
         {BEATS.map((_, index) => (
-          <Beat key={index} ishighlighted={index === 0 ? 'true' : 'false'}></Beat>
+          <Beat
+            key={index}
+            ishighlighted={index === 0 ? 'true' : 'false'}
+          ></Beat>
         ))}
       </BeatContainer>
       <NotesWrapper>
@@ -63,7 +72,7 @@ const getNoteColor = (index: number, noteSize: number) => {
   const fraction = index / noteSize;
 
   for (const divisor of Object.keys(COLORS)) {
-    const numDivisor = parseInt(divisor);
+    const numDivisor = parseInt(divisor, 10);
 
     if (noteSize >= numDivisor && fraction % (1 / numDivisor) === 0) {
       return (COLORS as any)[numDivisor]; // Return the corresponding color from the map
@@ -111,7 +120,10 @@ const Mine = () => {
 const NoteArrow = ({
   position,
   color,
-}: { position: number; color: string }) => {
+}: {
+  position: number;
+  color: string;
+}) => {
   return (
     <div
       style={{

@@ -1,6 +1,6 @@
-import { StepConfigurationFormState } from '../form/configurationForm';
-import { NoteV2 } from '../types/mapTypes';
-import { Chart, Measure, StepChart } from '../types/stepTypes';
+import type { StepConfigurationFormState } from '../form/configurationForm';
+import type { NoteV2 } from '../types/mapTypes';
+import type { Chart, Measure, StepChart } from '../types/stepTypes';
 
 type StepBuilderConfig = Omit<StepChart, 'charts'> & {
   mapNotes: NoteV2[];
@@ -14,7 +14,7 @@ const POSSIBLE_BEATS_PER_MEASURE = [4, 8, 12, 16, 24, 32, 48, 64, 96, 128];
 
 function generateFractions(
   maxBeatsPerMeasure: number,
-  shouldIncludeSubfractions: boolean = false,
+  shouldIncludeSubfractions = false,
 ) {
   let res = 0;
   const fractions: number[] = [];
@@ -92,7 +92,7 @@ export class StepBuilder {
   }
 
   private getChartDifficulty(stepNotes: Measure[]) {
-    const notes = stepNotes.flat();
+    const _notes = stepNotes.flat();
     const lastTime = this.config.mapNotes.slice(-1)[0]?._time;
     if (!lastTime) {
       return 1;
@@ -101,8 +101,8 @@ export class StepBuilder {
     // jump counts as 3 notes because it's energy consuming
     const noteCount = this.jump * 3 + this.hands * 4 + this.tap;
     const notesPerMin = noteCount / songLengthInMins;
-    // 300 notes per min is 10
-    return Math.round((Math.sqrt(notesPerMin) / Math.sqrt(300)) * 10) || 1;
+    // 300 notes per min is 11
+    return Math.round((Math.sqrt(notesPerMin) / Math.sqrt(300)) * 11) || 1;
   }
 
   private getBeatsPerMeasureForFraction(fraction: number) {
@@ -133,7 +133,7 @@ export class StepBuilder {
     // Function to compute the greatest common divisor (GCD)
     function gcd(x: number, y: number): number {
       while (y !== 0) {
-        let temp = y;
+        const temp = y;
         y = x % y;
         x = temp;
       }
@@ -201,7 +201,7 @@ export class StepBuilder {
         crossover === 'false' ||
         beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForCrossovers!
       ) {
-        let currentFoot: 'left' | 'right' | undefined = undefined;
+        let currentFoot: 'left' | 'right' | undefined;
         if (currentLocations[0] === 0) {
           currentFoot = 'left';
         } else if (currentLocations[0] === 3) {
@@ -288,24 +288,24 @@ export class StepBuilder {
     } else {
       const handIndices = Object.values(notesIndexMap);
       const swingIndices = handIndices.filter((indices) => indices.length >= 2);
-      if (this.config.jumpMode == 'swing') {
+      if (this.config.jumpMode === 'swing') {
         currentLocations = Array.from(new Set(swingIndices.flat()).values());
         // treating two hands as one note here
         if (!currentLocations.length) {
           currentLocations = handIndices.flat().slice(0, 1);
         }
-      } else if (this.config.jumpMode == 'both') {
+      } else if (this.config.jumpMode === 'both') {
         const twoHandIndices = Array.from(new Set(handIndices.flat()));
         if (twoHandIndices.length <= 1) {
           const newIndex = (twoHandIndices[0] + 1) % 4;
           twoHandIndices.push(newIndex);
         }
         currentLocations = twoHandIndices;
-      } else if (this.config.jumpMode == 'twohands') {
+      } else if (this.config.jumpMode === 'twohands') {
         // treating swings as one note here
         const twoHandIndices = Array.from(
           new Set(
-            handIndices.map((indices) => indices.slice(0, 1)).flat(),
+            handIndices.flatMap((indices) => indices.slice(0, 1)),
           ).values(),
         );
         if (twoHandIndices.length <= 1) {
@@ -387,7 +387,7 @@ export class StepBuilder {
       if (possibleNotes.length) {
         const note = this.buildNotes(possibleNotes);
         measure.push(note);
-        if (note.find(n => n === '1')) {
+        if (note.find((n) => n === '1')) {
           this._previousTimeNotes = { note, time: start };
         }
       } else {
@@ -411,7 +411,7 @@ export class StepBuilder {
   private buildV2StepNotes(notes: NoteV2[]) {
     const stepMeasures: Measure[] = [];
     let numberOfMeasures = 0;
-    let notesByMeasure = notes.reduce(
+    const notesByMeasure = notes.reduce(
       (
         acc: {
           [measure: number]: { notes: NoteV2[]; beatsPerMeasure?: number };

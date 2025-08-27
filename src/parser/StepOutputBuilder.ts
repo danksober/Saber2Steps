@@ -1,5 +1,5 @@
-import { Chart, StepChart } from '../types/stepTypes';
 import * as JSZip from 'jszip';
+import type { Chart, StepChart } from '../types/stepTypes';
 
 interface StepFiles {
   background?: File;
@@ -17,7 +17,7 @@ export class StepOutputBuilder {
 
   copySMContent() {
     const chartInfo = this.stepChart.charts.map(this.buildChartInfo).join('\n');
-    return this.buildSongInfo() + '\n' + chartInfo;
+    return `${this.buildSongInfo()}\n${chartInfo}`;
   }
 
   downloadZip() {
@@ -42,7 +42,7 @@ export class StepOutputBuilder {
 
   private getSongFileContent() {
     const chartInfo = this.stepChart.charts.map(this.buildChartInfo).join('\n');
-    return this.buildSongInfo() + '\n' + chartInfo;
+    return `${this.buildSongInfo()}\n${chartInfo}`;
   }
 
   private toDecimals(num: string, trailingZeros: number) {
@@ -65,7 +65,7 @@ export class StepOutputBuilder {
       const note = measure.map((notes) => notes.join(''));
       return note.join('\n');
     });
-    return start + notesString.join('\n,\n') + '\n;';
+    return `${start + notesString.join('\n,\n')}\n;`;
   }
 
   private buildSongInfo() {

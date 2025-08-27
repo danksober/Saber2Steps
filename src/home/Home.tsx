@@ -2,20 +2,20 @@ import {
   Alert,
   SpaceBetween,
   Wizard,
-  WizardProps,
+  type WizardProps,
 } from '@cloudscape-design/components';
-import React, { useState } from 'react';
 import { useAtom } from 'jotai';
-import { stepChartAtom } from './formState';
-import { useParseSaber } from '../parser/SaberParser';
-import StepCharts from './StepCharts';
-import { StepOutputBuilder } from '../parser/StepOutputBuilder';
+import React, { useState } from 'react';
+import { FormProvider } from 'react-hook-form';
 import {
   useMapConfigurationForm,
   useStepConfigForm,
 } from '../form/configurationForm';
-import { FormProvider } from 'react-hook-form';
+import { useParseSaber } from '../parser/SaberParser';
+import { StepOutputBuilder } from '../parser/StepOutputBuilder';
 import BeatSaberInputForm from './BeatSaberInputForm';
+import { stepChartAtom } from './formState';
+import StepCharts from './StepCharts';
 import StepConfiguration from './StepConfiguration';
 
 export default function Home() {

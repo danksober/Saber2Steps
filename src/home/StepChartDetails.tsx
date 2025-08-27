@@ -1,10 +1,10 @@
-import { Chart } from '../types/stepTypes';
 import {
   Container,
   Header,
   KeyValuePairs,
   SpaceBetween,
 } from '@cloudscape-design/components';
+import type { Chart } from '../types/stepTypes';
 import StepNotesVisual from './StepNotesVisual';
 
 interface StepChartDetailsProps {
