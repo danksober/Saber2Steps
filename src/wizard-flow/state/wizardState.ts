@@ -11,4 +11,4 @@ export const currentTimeAtom = atom(0);
 export const durationAtom = atom(0);
 export const activeChartAtom = atom<Chart | undefined>(undefined);
 export const musicVolumeAtom = atom(0.5); // Default to 50%
-export const hitSoundVolumeAtom = atom(1); // Default to 100%
+export const hitSoundVolumeAtom = atom(1.5); // Default to 150%

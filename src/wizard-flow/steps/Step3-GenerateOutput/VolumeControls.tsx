@@ -23,8 +23,8 @@ export default function VolumeControls() {
           value={hitSoundVolume * 100}
           onChange={({ detail }) => setHitSoundVolume(detail.value / 100)}
           step={1}
-          min={0}
-          max={100}
+          min={50}
+          max={200}
           valueFormatter={(value) => `${value}%`}
         />
       </FormField>

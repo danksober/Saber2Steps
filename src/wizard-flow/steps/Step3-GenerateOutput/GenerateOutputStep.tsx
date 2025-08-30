@@ -9,10 +9,7 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { activeChartAtom, stepChartAtom } from '../../state/wizardState';
-import AudioController from './AudioController';
 import ChartPreview from './ChartPreview';
-import PlaybackControls from './PlaybackControls';
-import VolumeControls from './VolumeControls';
 
 export default function StepCharts() {
   const stepChart = useAtomValue(stepChartAtom);
@@ -43,13 +40,6 @@ export default function StepCharts() {
   }));
   return (
     <SpaceBetween direction="vertical" size="l">
-      <AudioController />
-      <Container header={<Header variant="h2">Playback</Header>}>
-        <SpaceBetween size="m">
-          <PlaybackControls />
-          <VolumeControls />
-        </SpaceBetween>
-      </Container>
       <Container header={<Header variant="h2">Song info</Header>}>
         <KeyValuePairs
           columns={3}

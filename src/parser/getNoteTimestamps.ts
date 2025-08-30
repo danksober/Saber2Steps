@@ -25,8 +25,5 @@ export const getNoteTimestamps = (
     }
   }
 
-  console.log('secondsPerNote', measures);
-  console.log('noteTimestamps', noteTimestamps);
-
   return noteTimestamps;
 };

@@ -17,13 +17,14 @@ export default function AudioController() {
   const animationFrameRef = useRef<number>(0);
   const { watch } = useFormContext();
   const musicFile = watch('musicFile');
-  const [audioState] = useAtom(audioStateAtom);
+  const [audioState, setAudioState] = useAtom(audioStateAtom);
   const setCurrentTime = useSetAtom(currentTimeAtom);
   const setDuration = useSetAtom(durationAtom);
   const stepChart = useAtomValue(stepChartAtom);
   const activeChart = useAtomValue(activeChartAtom);
   const musicVolume = useAtomValue(musicVolumeAtom);
   const hitSoundVolume = useAtomValue(hitSoundVolumeAtom);
+  const currentTime = useAtomValue(currentTimeAtom);
 
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const lastTimeRef = useRef(0);
@@ -104,6 +105,11 @@ export default function AudioController() {
     return getNoteTimestamps(activeChart.notes, bpm, offset);
   }, [activeChart, stepChart]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: activeChart is needed to reset state on chart change
+  useEffect(() => {
+    setAudioState('stopped');
+  }, [activeChart, setAudioState]);
+
   // Reset note index when the chart changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: need this
   useEffect(() => {
@@ -183,19 +189,18 @@ export default function AudioController() {
     };
   }, [audioState, noteTimestamps, playHitSound, setCurrentTime]);
 
-  // Handle metadata loading
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-    };
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    return () => {
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-    };
-  }, [setDuration]);
+    // Sync audio element's time with state when scrolling
+    if (
+      audioState !== 'playing' &&
+      Math.abs(audio.currentTime - currentTime) > 0.1
+    ) {
+      audio.currentTime = currentTime;
+    }
+  }, [currentTime, audioState]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -218,6 +223,20 @@ export default function AudioController() {
     return null;
   }
 
-  // biome-ignore lint/a11y/useMediaCaption: test
-  return <audio ref={audioRef} src={objectUrl} />;
+  return (
+    <audio
+      ref={audioRef}
+      src={objectUrl}
+      onLoadedMetadata={() => {
+        if (audioRef.current) {
+          setDuration(audioRef.current.duration);
+        }
+      }}
+      onEnded={() => {
+        setAudioState('stopped');
+      }}
+    >
+      <track kind="captions" />
+    </audio>
+  );
 }
