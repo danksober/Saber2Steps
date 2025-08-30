@@ -76,13 +76,13 @@ export const useStepConfigForm = () => {
   const useFormReturn = useForm<StepConfigurationFormState>({
     defaultValues: {
       jumpMode: 'swing',
-      minGapForDoubleTap: 8,
+      minGapForDoubleTap: 4,
       minGapForTapJumps: 8,
       minGapForJumpTap: 8,
       minGapForJumps: 8,
       minGapForCrossovers: 4,
-      minGapForAutoSnapping: 32,
-      crossover: 'true',
+      minGapForAutoSnapping: 24,
+      crossover: 'false',
       hands: 'false',
       additionalOffset: 0.009,
     },

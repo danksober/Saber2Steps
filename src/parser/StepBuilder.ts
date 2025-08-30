@@ -31,9 +31,6 @@ function generateFractions(
   } else if (maxBeatsPerMeasure === 24) {
     const _fractions = generateFractions(16);
     fractions.push(..._fractions);
-  } else if (maxBeatsPerMeasure === 16) {
-    const _fractions = generateFractions(12);
-    fractions.push(..._fractions);
   } else if (maxBeatsPerMeasure === 32) {
     const _fractions = generateFractions(24);
     fractions.push(..._fractions);
@@ -92,7 +89,6 @@ export class StepBuilder {
   }
 
   private getChartDifficulty(stepNotes: Measure[]) {
-    const _notes = stepNotes.flat();
     const lastTime = this.config.mapNotes.slice(-1)[0]?._time;
     if (!lastTime) {
       return 1;
@@ -353,21 +349,6 @@ export class StepBuilder {
         }
       }
     }
-
-    // for (let i = 0; i < 4; i++) {
-    //   const possibleNote = currentTimeNotes.find(
-    //     (note) => note._lineIndex === i,
-    //   );
-    //   if (possibleNote) {
-    //     if (possibleNote._type === 3) {
-    //       this.mines += 1;
-    //     }
-    //     const note = possibleNote._type !== 3 ? '1' : 'M';
-    //     notes.push(note);
-    //   } else {
-    //     notes.push('0');
-    //   }
-    // }
 
     this.countNotes(notes);
     return notes;
