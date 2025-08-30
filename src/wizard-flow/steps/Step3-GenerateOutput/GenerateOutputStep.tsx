@@ -6,19 +6,35 @@ import {
   Tabs,
   type TabsProps,
 } from '@cloudscape-design/components';
-import { useAtomValue } from 'jotai';
-import { useState } from 'react';
-import { stepChartAtom } from '../../state/wizardState';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { activeChartAtom, stepChartAtom } from '../../state/wizardState';
+import AudioController from './AudioController';
 import ChartPreview from './ChartPreview';
+import PlaybackControls from './PlaybackControls';
+import VolumeControls from './VolumeControls';
 
 export default function StepCharts() {
   const stepChart = useAtomValue(stepChartAtom);
+  const setActiveChart = useSetAtom(activeChartAtom);
   const [tabId, setTabId] = useState(stepChart?.charts?.[0]?.name);
+
+  useEffect(() => {
+    if (stepChart?.charts?.[0]) {
+      setActiveChart(stepChart.charts[0]);
+    }
+  }, [stepChart, setActiveChart]);
 
   if (!stepChart) {
     // biome-ignore lint/complexity/noUselessFragments: it's a placeholder
     return <></>;
   }
+
+  const handleTabChange = (newTabId: string) => {
+    setTabId(newTabId);
+    const newChart = stepChart.charts.find((c) => c.name === newTabId);
+    setActiveChart(newChart);
+  };
 
   const tabs: TabsProps.Tab[] = stepChart.charts.map((chart) => ({
     id: chart.name,
@@ -27,6 +43,13 @@ export default function StepCharts() {
   }));
   return (
     <SpaceBetween direction="vertical" size="l">
+      <AudioController />
+      <Container header={<Header variant="h2">Playback</Header>}>
+        <SpaceBetween size="m">
+          <PlaybackControls />
+          <VolumeControls />
+        </SpaceBetween>
+      </Container>
       <Container header={<Header variant="h2">Song info</Header>}>
         <KeyValuePairs
           columns={3}
@@ -83,7 +106,7 @@ export default function StepCharts() {
           variant="default"
           tabs={tabs}
           activeTabId={tabId}
-          onChange={(e) => setTabId(e.detail.activeTabId)}
+          onChange={(e) => handleTabChange(e.detail.activeTabId)}
         ></Tabs>
       )}
     </SpaceBetween>

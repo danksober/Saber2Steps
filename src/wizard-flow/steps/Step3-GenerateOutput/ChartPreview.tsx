@@ -1,57 +1,32 @@
-import {
-  Container,
-  Header,
-  KeyValuePairs,
-  SpaceBetween,
-} from '@cloudscape-design/components';
+import { Button, SpaceBetween } from '@cloudscape-design/components';
+import { useState } from 'react';
 import type { Chart } from '../../../types/stepTypes';
-import StepNotesVisual from './NotesVisualizer';
+import NotesVisualizer from './NotesVisualizer';
+import NotesVisualizerDOM from './NotesVisualizerDOM';
 
-interface StepChartDetailsProps {
+interface ChartPreviewProps {
   chart: Chart;
 }
 
-export default function StepChartDetails({ chart }: StepChartDetailsProps) {
-  const notes = chart.notes;
+export default function ChartPreview({ chart }: ChartPreviewProps) {
+  const [useCanvas, setUseCanvas] = useState(true);
 
   return (
-    <SpaceBetween direction="vertical" size="l">
-      <Container header={<Header variant="h2">Chart info</Header>}>
-        <KeyValuePairs
-          columns={3}
-          items={[
-            {
-              label: 'Name',
-              value: chart.name || '-',
-            },
-            {
-              label: 'Type',
-              value: chart.type || '-',
-            },
-            {
-              label: 'Difficulty',
-              value: chart.meter || '-',
-            },
-            {
-              label: 'Tap',
-              value: chart.tap || 0,
-            },
-            {
-              label: 'Jump',
-              value: chart.jump || 0,
-            },
-            {
-              label: 'Hold',
-              value: chart.hold || 0,
-            },
-            {
-              label: 'Mines',
-              value: chart.bomb || 0,
-            },
-          ]}
-        />
-      </Container>
-      <StepNotesVisual measures={notes} />
+    <SpaceBetween size="m">
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button
+          iconName={useCanvas ? 'zoom-to-fit' : 'view-full'}
+          onClick={() => setUseCanvas((prev) => !prev)}
+        >
+          Toggle Renderer (Current: {useCanvas ? 'Canvas' : 'DOM'})
+        </Button>
+      </div>
+
+      {useCanvas ? (
+        <NotesVisualizer measures={chart.notes} />
+      ) : (
+        <NotesVisualizerDOM measures={chart.notes} />
+      )}
     </SpaceBetween>
   );
 }

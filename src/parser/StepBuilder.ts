@@ -452,9 +452,6 @@ export class StepBuilder {
       }
       byMeasure.beatsPerMeasure = beatsPerMeasure;
     }
-    console.log(notes);
-    console.log();
-    console.log(notesByMeasure);
 
     for (let i = 0; i < numberOfMeasures; i++) {
       if (!notesByMeasure[i]) {
@@ -473,8 +470,6 @@ export class StepBuilder {
         );
       }
     }
-
-    console.log(stepMeasures);
 
     return stepMeasures;
   }
