@@ -13,12 +13,12 @@ import {
 } from '../form/configurationForm';
 import { useParseSaber } from '../parser/SaberParser';
 import { StepOutputBuilder } from '../parser/StepOutputBuilder';
-import BeatSaberInputForm from './BeatSaberInputForm';
-import { stepChartAtom } from './formState';
-import StepCharts from './StepCharts';
-import StepConfiguration from './StepConfiguration';
+import { stepChartAtom } from './state/wizardState';
+import BeatSaberInputForm from './steps/Step1-LoadMap/LoadMapStep';
+import StepConfiguration from './steps/Step2-ConfigureSteps/ConfigureStepsStep';
+import StepCharts from './steps/Step3-GenerateOutput/GenerateOutputStep';
 
-export default function Home() {
+export default function WizardFlow() {
   const [stepChart, setStepChart] = useAtom(stepChartAtom);
 
   const formMethods = useMapConfigurationForm();

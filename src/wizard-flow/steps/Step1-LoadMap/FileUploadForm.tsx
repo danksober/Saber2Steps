@@ -8,8 +8,8 @@ import {
   SpaceBetween,
 } from '@cloudscape-design/components';
 import { Controller, useFormContext } from 'react-hook-form';
-import { commonFileUploadProps } from '../constants/fileUpload';
-import type { SaberConfigurationFormState } from '../form/configurationForm';
+import { commonFileUploadProps } from '../../../constants/fileUpload';
+import type { SaberConfigurationFormState } from '../../../form/configurationForm';
 
 export default function SaberFileForm() {
   const {

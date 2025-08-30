@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import type { StepChart } from '../types/stepTypes';
+import type { StepChart } from '../../types/stepTypes';
 
 // output
 export const stepChartAtom = atom<StepChart>();

@@ -1,7 +1,7 @@
 import { Icon } from '@cloudscape-design/components';
 import * as awsui from '@cloudscape-design/design-tokens';
 import styled from 'styled-components';
-import type { Measure } from '../types/stepTypes';
+import type { Measure } from '../../../types/stepTypes';
 
 interface StepNotesVisualProps {
   measures: Measure[];

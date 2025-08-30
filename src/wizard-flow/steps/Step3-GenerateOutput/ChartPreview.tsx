@@ -4,8 +4,8 @@ import {
   KeyValuePairs,
   SpaceBetween,
 } from '@cloudscape-design/components';
-import type { Chart } from '../types/stepTypes';
-import StepNotesVisual from './StepNotesVisual';
+import type { Chart } from '../../../types/stepTypes';
+import StepNotesVisual from './NotesVisualizer';
 
 interface StepChartDetailsProps {
   chart: Chart;

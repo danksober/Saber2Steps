@@ -1,6 +1,6 @@
 import { AppLayout } from '@cloudscape-design/components';
 import { useEffect } from 'react';
-import Home from './home/Home';
+import WizardFlow from './wizard-flow/WizardFlow';
 
 const App = () => {
   useEffect(() => {
@@ -8,7 +8,12 @@ const App = () => {
   }, []);
 
   return (
-    <AppLayout contentType="form" content={<Home />} toolsHide navigationHide />
+    <AppLayout
+      contentType="form"
+      content={<WizardFlow />}
+      toolsHide
+      navigationHide
+    />
   );
 };
 

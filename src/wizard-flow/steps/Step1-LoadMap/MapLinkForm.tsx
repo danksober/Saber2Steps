@@ -7,7 +7,7 @@ import {
   Table,
 } from '@cloudscape-design/components';
 import { Controller, useFormContext } from 'react-hook-form';
-import type { SaberConfigurationFormState } from '../form/configurationForm';
+import type { SaberConfigurationFormState } from '../../../form/configurationForm';
 
 export default function LevelMapForm() {
   const {

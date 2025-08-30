@@ -15,14 +15,14 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
-import { getMapInfo } from '../constants/getMapInfo';
+import { getMapInfo } from '../../../constants/getMapInfo';
 import {
   type SaberConfigurationFormState,
   useLinkForm,
-} from '../form/configurationForm';
-import { mapIdAtom } from './formState';
-import LevelMapForm from './LevelMapForm';
-import SaberFileForm from './SaberFileForm';
+} from '../../../form/configurationForm';
+import { mapIdAtom } from '../../state/wizardState';
+import FileUploadForm from './FileUploadForm';
+import MapLinkForm from './MapLinkForm';
 
 export default function BeatSaberInputForm() {
   const { control, watch, setValue } =
@@ -174,8 +174,8 @@ export default function BeatSaberInputForm() {
       )}
       {(watchInputType === 'manual' || mapId) && (
         <>
-          <SaberFileForm />
-          <LevelMapForm />
+          <FileUploadForm />
+          <MapLinkForm />
         </>
       )}
       {mapId && modal && (
