@@ -10,6 +10,7 @@ import {
   audioStateAtom,
   currentTimeAtom,
   durationAtom,
+  scrollSpeedAtom,
 } from '../../state/wizardState';
 
 export default function PlaybackControls() {
@@ -17,6 +18,7 @@ export default function PlaybackControls() {
   const currentTime = useAtomValue(currentTimeAtom);
   const setCurrentTime = useSetAtom(currentTimeAtom);
   const duration = useAtomValue(durationAtom);
+  const [scrollSpeed, setScrollSpeed] = useAtom(scrollSpeedAtom);
 
   const togglePlayback = () => {
     if (audioState === 'playing') {
@@ -60,6 +62,19 @@ export default function PlaybackControls() {
         <TimeDisplay>
           {formatTime(currentTime)} / {formatTime(duration)}
         </TimeDisplay>
+      </SliderContainer>
+      <SliderContainer>
+        <Box variant="p" color="text-label">
+          Scroll Speed
+        </Box>
+        <StyledSlider
+          value={scrollSpeed}
+          onChange={({ detail }) => setScrollSpeed(detail.value)}
+          min={100}
+          max={1000}
+          step={10}
+        />
+        <TimeDisplay>{scrollSpeed}</TimeDisplay>
       </SliderContainer>
       <ButtonsContainer direction="horizontal" size="s">
         <Button

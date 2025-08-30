@@ -7,11 +7,13 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import type { Measure } from '../../../types/stepTypes';
 import {
   audioStateAtom,
   currentTimeAtom,
+  scrollSpeedAtom,
   stepChartAtom,
 } from '../../../wizard-flow/state/wizardState';
 import CustomScrollbar from './CustomScrollbar';
@@ -20,9 +22,8 @@ interface StepNotesVisualProps {
   measures: Measure[];
 }
 
-const CONTAINER_HEIGHT = 600;
+const CONTAINER_HEIGHT = 800;
 const BEATS_PER_MEASURE = 4;
-const PADDING_PER_BEAT = 200;
 const NOTE_SIZE = 50;
 
 const COLORS = {
@@ -152,11 +153,29 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasWidth, setCanvasWidth] = useState(0);
+  const { watch } = useFormContext();
+  const backgroundFile = watch('backgroundFile');
+  const [backgroundImage, setBackgroundImage] =
+    useState<HTMLImageElement | null>(null);
 
+  const scrollSpeed = useAtomValue(scrollSpeedAtom);
   const currentTime = useAtomValue(currentTimeAtom);
   const setCurrentTime = useSetAtom(currentTimeAtom);
   const stepChart = useAtomValue(stepChartAtom);
   const [audioState, setAudioState] = useAtom(audioStateAtom);
+
+  // Load background image
+  useEffect(() => {
+    if (backgroundFile) {
+      const img = new Image();
+      const url = URL.createObjectURL(backgroundFile);
+      img.src = url;
+      img.onload = () => {
+        setBackgroundImage(img);
+        URL.revokeObjectURL(url);
+      };
+    }
+  }, [backgroundFile]);
 
   // Measure container to set canvas width dynamically
   useLayoutEffect(() => {
@@ -172,20 +191,23 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
   }, []);
 
   const bpm = stepChart ? parseFloat(stepChart.bpms.split(',')[0]) : 0;
+
+  const paddingPerBeat = (CONTAINER_HEIGHT / 8) * (scrollSpeed / bpm);
+
   const beatsPerSecond = bpm / 60;
-  const autoScrollOffset = currentTime * beatsPerSecond * PADDING_PER_BEAT;
+  const autoScrollOffset = currentTime * beatsPerSecond * paddingPerBeat;
 
   const handleScroll = useCallback(
     (newScrollTop: number) => {
       if (beatsPerSecond > 0) {
-        const newTime = newScrollTop / (beatsPerSecond * PADDING_PER_BEAT);
+        const newTime = newScrollTop / (beatsPerSecond * paddingPerBeat);
         setCurrentTime(newTime);
         if (audioState === 'playing' || audioState === 'stopped') {
           setAudioState('paused');
         }
       }
     },
-    [beatsPerSecond, setCurrentTime, audioState, setAudioState],
+    [beatsPerSecond, setCurrentTime, audioState, setAudioState, paddingPerBeat],
   );
 
   // Handle manual scroll events
@@ -194,7 +216,7 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
     if (!canvas) return;
 
     const totalChartHeight =
-      measures.length * BEATS_PER_MEASURE * PADDING_PER_BEAT;
+      measures.length * BEATS_PER_MEASURE * paddingPerBeat;
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
@@ -211,7 +233,7 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
     return () => {
       canvas.removeEventListener('wheel', handleWheel);
     };
-  }, [handleScroll, autoScrollOffset, measures.length]);
+  }, [handleScroll, autoScrollOffset, measures.length, paddingPerBeat]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -220,6 +242,13 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
 
     // Clear canvas
     ctx.clearRect(0, 0, canvasWidth, CONTAINER_HEIGHT);
+
+    // Draw background image if it exists
+    if (backgroundImage) {
+      ctx.globalAlpha = 0.2; // Set transparency
+      ctx.drawImage(backgroundImage, 0, 0, canvasWidth, CONTAINER_HEIGHT);
+      ctx.globalAlpha = 1.0; // Reset transparency
+    }
 
     if (Number.isNaN(bpm)) return;
 
@@ -238,7 +267,7 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
     let currentY = 0;
     for (let i = 0; i < measures.length; i++) {
       const measure = measures[i];
-      const measureHeight = PADDING_PER_BEAT * BEATS_PER_MEASURE;
+      const measureHeight = paddingPerBeat * BEATS_PER_MEASURE;
       const measureY = currentY - scrollOffset;
 
       // Draw measure number
@@ -249,8 +278,8 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
 
       // Draw beats within the measure
       for (let j = 0; j < BEATS_PER_MEASURE; j++) {
-        const beatY = currentY + j * PADDING_PER_BEAT - scrollOffset;
-        if (beatY > -PADDING_PER_BEAT && beatY < CONTAINER_HEIGHT) {
+        const beatY = currentY + j * paddingPerBeat - scrollOffset;
+        if (beatY > -paddingPerBeat && beatY < CONTAINER_HEIGHT) {
           ctx.strokeStyle = j === 0 ? COLOR_MEASURE_LINE : COLOR_BEAT_LINE;
           ctx.lineWidth = j === 0 ? 1.5 : 1;
           ctx.beginPath();
@@ -284,10 +313,17 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
 
       currentY += measureHeight;
     }
-  }, [measures, stepChart, bpm, canvasWidth, autoScrollOffset]);
+  }, [
+    measures,
+    stepChart,
+    bpm,
+    canvasWidth,
+    autoScrollOffset,
+    backgroundImage,
+    paddingPerBeat,
+  ]);
 
-  const totalChartHeight =
-    measures.length * BEATS_PER_MEASURE * PADDING_PER_BEAT;
+  const totalChartHeight = measures.length * BEATS_PER_MEASURE * paddingPerBeat;
 
   return (
     <Container>
