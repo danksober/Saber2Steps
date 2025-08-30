@@ -1,6 +1,12 @@
 import * as awsui from '@cloudscape-design/design-tokens';
-import { useAtomValue } from 'jotai';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import type { Measure } from '../../../types/stepTypes';
 import {
@@ -148,9 +154,9 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
   const [canvasWidth, setCanvasWidth] = useState(0);
 
   const currentTime = useAtomValue(currentTimeAtom);
+  const setCurrentTime = useSetAtom(currentTimeAtom);
   const stepChart = useAtomValue(stepChartAtom);
-  const audioState = useAtomValue(audioStateAtom);
-  const [manualScroll, setManualScroll] = useState(0);
+  const [audioState, setAudioState] = useAtom(audioStateAtom);
 
   // Measure container to set canvas width dynamically
   useLayoutEffect(() => {
@@ -169,15 +175,18 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
   const beatsPerSecond = bpm / 60;
   const autoScrollOffset = currentTime * beatsPerSecond * PADDING_PER_BEAT;
 
-  // Sync manual scroll when pausing or stopping
-  useEffect(() => {
-    if (audioState === 'paused') {
-      setManualScroll(autoScrollOffset);
-    }
-    if (audioState === 'stopped') {
-      setManualScroll(0);
-    }
-  }, [audioState, autoScrollOffset]);
+  const handleScroll = useCallback(
+    (newScrollTop: number) => {
+      if (beatsPerSecond > 0) {
+        const newTime = newScrollTop / (beatsPerSecond * PADDING_PER_BEAT);
+        setCurrentTime(newTime);
+        if (audioState === 'playing' || audioState === 'stopped') {
+          setAudioState('paused');
+        }
+      }
+    },
+    [beatsPerSecond, setCurrentTime, audioState, setAudioState],
+  );
 
   // Handle manual scroll events
   useEffect(() => {
@@ -188,24 +197,21 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
       measures.length * BEATS_PER_MEASURE * PADDING_PER_BEAT;
 
     const handleWheel = (event: WheelEvent) => {
-      if (audioState === 'playing') return; // Don't allow manual scroll while playing
       event.preventDefault();
-
-      setManualScroll((prev) => {
-        const newScroll = prev + event.deltaY;
-        // Clamp scroll to chart bounds
-        return Math.max(
-          0,
-          Math.min(newScroll, totalChartHeight - CONTAINER_HEIGHT),
-        );
-      });
+      const currentScroll = autoScrollOffset;
+      const newScroll = currentScroll + event.deltaY;
+      const clampedScroll = Math.max(
+        0,
+        Math.min(newScroll, totalChartHeight - CONTAINER_HEIGHT),
+      );
+      handleScroll(clampedScroll);
     };
 
     canvas.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
       canvas.removeEventListener('wheel', handleWheel);
     };
-  }, [audioState, measures.length]);
+  }, [handleScroll, autoScrollOffset, measures.length]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -217,8 +223,7 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
 
     if (Number.isNaN(bpm)) return;
 
-    const scrollOffset =
-      audioState === 'playing' ? autoScrollOffset : manualScroll;
+    const scrollOffset = autoScrollOffset;
 
     // Calculate the chart's drawing area to match the DOM version's style
     const chartAreaWidth = Math.max(500, canvasWidth * 0.5);
@@ -279,15 +284,7 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
 
       currentY += measureHeight;
     }
-  }, [
-    measures,
-    stepChart,
-    audioState,
-    manualScroll,
-    bpm,
-    canvasWidth,
-    autoScrollOffset,
-  ]);
+  }, [measures, stepChart, bpm, canvasWidth, autoScrollOffset]);
 
   const totalChartHeight =
     measures.length * BEATS_PER_MEASURE * PADDING_PER_BEAT;
@@ -300,9 +297,8 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
       <CustomScrollbar
         scrollHeight={totalChartHeight}
         clientHeight={CONTAINER_HEIGHT}
-        scrollTop={audioState === 'playing' ? autoScrollOffset : manualScroll}
-        onScroll={setManualScroll}
-        disabled={audioState === 'playing'}
+        scrollTop={autoScrollOffset}
+        onScroll={handleScroll}
       />
     </Container>
   );

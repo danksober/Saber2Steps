@@ -199,8 +199,18 @@ export default function AudioController() {
       Math.abs(audio.currentTime - currentTime) > 0.1
     ) {
       audio.currentTime = currentTime;
+      lastTimeRef.current = currentTime; // Keep lastTimeRef in sync
+
+      // Find the correct next note index after seeking
+      const newNoteIndex = noteTimestamps.findIndex(
+        (timestamp) => timestamp >= currentTime,
+      );
+
+      // If no note is found, it means we've scrolled past the last note
+      nextNoteIndexRef.current =
+        newNoteIndex === -1 ? noteTimestamps.length : newNoteIndex;
     }
-  }, [currentTime, audioState]);
+  }, [currentTime, audioState, noteTimestamps]);
 
   useEffect(() => {
     const audio = audioRef.current;
