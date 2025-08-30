@@ -2,6 +2,7 @@ import {
   Container,
   FormField,
   Header,
+  Input,
   RadioGroup,
   Select,
   SpaceBetween,
@@ -44,27 +45,47 @@ export default function StepConfiguration() {
   return (
     <SpaceBetween size="l" direction="vertical">
       <Container header={<Header variant="h2">Parser options</Header>}>
-        <Controller
-          control={control}
-          name="minGapForAutoSnapping"
-          render={({ field }) => (
-            <FormField
-              label="Mininum notes to auto snap"
-              description="Some Beat Saber maps are not perfectly formatted in time, an auto snapping algorithm is applied to snap Beat Saber notes to approximate times. This option configures the minimum notes to snap the map notes to."
-            >
-              <Select
-                selectedOption={{
-                  value: field.value?.toString(),
-                  label: getNoteSelectionLabel(field.value!),
-                }}
-                options={noteGapOptions}
-                onChange={({ detail }) =>
-                  field.onChange(+detail.selectedOption.value!)
-                }
-              />
-            </FormField>
-          )}
-        ></Controller>
+        <SpaceBetween size="l">
+          <Controller
+            control={control}
+            name="minGapForAutoSnapping"
+            render={({ field }) => (
+              <FormField
+                label="Mininum notes to auto snap"
+                description="Some Beat Saber maps are not perfectly formatted in time, an auto snapping algorithm is applied to snap Beat Saber notes to approximate times. This option configures the minimum notes to snap the map notes to."
+              >
+                <Select
+                  selectedOption={{
+                    value: field.value?.toString(),
+                    label: getNoteSelectionLabel(field.value!),
+                  }}
+                  options={noteGapOptions}
+                  onChange={({ detail }) =>
+                    field.onChange(+detail.selectedOption.value!)
+                  }
+                />
+              </FormField>
+            )}
+          ></Controller>
+          <Controller
+            control={control}
+            name="additionalOffset"
+            render={({ field }) => (
+              <FormField
+                label="Additional offset"
+                description="An additional offset to apply to the generated step chart. This is useful for compensating for timing differences between Beat Saber and StepMania."
+              >
+                <Input
+                  {...field}
+                  type="number"
+                  step={0.001}
+                  value={(field.value || '').toString()}
+                  onChange={(e) => field.onChange(e.detail.value)}
+                />
+              </FormField>
+            )}
+          ></Controller>
+        </SpaceBetween>
       </Container>
       <Container
         header={

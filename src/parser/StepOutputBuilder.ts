@@ -78,7 +78,7 @@ export class StepOutputBuilder {
       banner,
       background,
       music,
-      offset,
+      outputOffset,
       sampleStart,
       sampleLength,
       bpms,
@@ -98,7 +98,7 @@ export class StepOutputBuilder {
 #LYRICSPATH:;
 #CDTITLE:;
 #MUSIC:${(music || '').replace('egg', 'ogg')};
-#OFFSET:${this.toDecimals(offset || '0', 6)};
+#OFFSET:${this.toDecimals(outputOffset || '0', 6)};
 #SAMPLESTART:${this.toDecimals(sampleStart || '0', 6)};
 #SAMPLELENGTH:${this.toDecimals(sampleLength || '10', 6)};
 #SELECTABLE:YES;

@@ -23,6 +23,10 @@ export const useParseSaber = () => {
     const stepFile = saberParser.toStepFile();
     stepFile.background = saberFormState.backgroundFile?.name;
     stepFile.music = saberFormState.musicFile.name;
+    stepFile.outputOffset = (
+      Number(stepFile.offset || '0') + Number(stepFormState.additionalOffset)
+    ).toString();
+
     return stepFile;
   };
   return parse;

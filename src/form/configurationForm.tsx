@@ -11,27 +11,27 @@ export interface SaberConfigurationFormState {
   musicFile: File;
   chartFiles: File[];
   backgroundFile?: File;
-  inputType?: 'link' | 'manual';
+  inputType: 'link' | 'manual';
 }
 
 export interface StepConfigurationFormState {
-  crossover?: CrossoverMode;
-  hands?: HandsMode;
-  jumpMode?: JumpMode;
-  minGapForAutoSnapping?: number;
-  minGapForCrossovers?: number;
-  minGapForDoubleTap?: number; // min double tap default 8th notes
-  minGapForJumps?: number; // min gap for jumps default 8th notes otherwise the note will be single
-  minGapForTapJumps?: number;
-  minGapForJumpTap?: number; // min gap for tap right after a jump
+  crossover: CrossoverMode;
+  hands: HandsMode;
+  jumpMode: JumpMode;
+  minGapForAutoSnapping: number;
+  minGapForCrossovers: number;
+  minGapForDoubleTap: number; // min double tap default 8th notes
+  minGapForJumps: number; // min gap for jumps default 8th notes otherwise the note will be single
+  minGapForTapJumps: number;
+  minGapForJumpTap: number; // min gap for tap right after a jump
+  additionalOffset: number;
 }
 
 const mapValidationSchema = Yup.object<SaberConfigurationFormState>().shape({
-  inputType: Yup.mixed(),
-  mapLink: Yup.string(),
+  inputType: Yup.mixed<SaberConfigurationFormState['inputType']>().required(),
   infoFile: Yup.mixed<File>().required('Please add Beat Saber info file'),
   musicFile: Yup.mixed<File>().required('Please add Beat Saber music file'),
-  backgroundFile: Yup.mixed<File>(),
+  backgroundFile: Yup.mixed<File>().optional().nullable(),
   chartFiles: Yup.array()
     .min(1, 'At least one Beat Saber chart file is required')
     .of(Yup.mixed<File>().required())
@@ -48,15 +48,16 @@ const linkValidationSchema = Yup.object().shape({
 });
 
 const stepValidationSchema = Yup.object<StepConfigurationFormState>().shape({
-  crossover: Yup.string<CrossoverMode>(),
-  jumpMode: Yup.string<JumpMode>(),
-  hands: Yup.string<HandsMode>(),
-  minGapForCrossovers: Yup.number().min(4).max(32),
-  minGapForDoubleTap: Yup.number().min(4).max(32),
-  minGapForJumps: Yup.number().min(4).max(32),
-  minGapForTapJumps: Yup.number().min(4).max(32),
-  minGapForAutoSnapping: Yup.number().min(4).max(32),
-  minGapForJumpTap: Yup.number().min(4).max(32),
+  crossover: Yup.string<CrossoverMode>().required(),
+  jumpMode: Yup.string<JumpMode>().required(),
+  hands: Yup.string<HandsMode>().required(),
+  minGapForCrossovers: Yup.number().min(4).max(32).required(),
+  minGapForDoubleTap: Yup.number().min(4).max(32).required(),
+  minGapForJumps: Yup.number().min(4).max(32).required(),
+  minGapForTapJumps: Yup.number().min(4).max(32).required(),
+  minGapForAutoSnapping: Yup.number().min(4).max(32).required(),
+  minGapForJumpTap: Yup.number().min(4).max(32).required(),
+  additionalOffset: Yup.number().required(),
 });
 
 interface LinkFormState {
@@ -83,6 +84,7 @@ export const useStepConfigForm = () => {
       minGapForAutoSnapping: 32,
       crossover: 'true',
       hands: 'false',
+      additionalOffset: 0.009,
     },
     resolver: yupResolver(stepValidationSchema),
   });
@@ -96,6 +98,7 @@ export const useMapConfigurationForm = () => {
       inputType: 'link',
     },
     mode: 'onChange',
+    // @ts-expect-error because the resolver is not typed correctly
     resolver: yupResolver(mapValidationSchema),
   });
   return useFormReturn;

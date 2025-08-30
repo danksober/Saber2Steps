@@ -10,6 +10,7 @@ export interface StepChart {
   background?: string;
   music?: string;
   offset?: string;
+  outputOffset?: string; // The offset that is used for the final output
   bpms: string;
   sampleStart?: string;
   sampleLength?: string;

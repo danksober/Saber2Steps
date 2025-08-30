@@ -21,7 +21,7 @@ import StepCharts from './steps/Step3-GenerateOutput/GenerateOutputStep';
 export default function WizardFlow() {
   const [stepChart, setStepChart] = useAtom(stepChartAtom);
 
-  const formMethods = useMapConfigurationForm();
+  const mapFormMethods = useMapConfigurationForm();
   const stepFormMethods = useStepConfigForm();
   const parse = useParseSaber();
   const [parseError, setParseError] = useState<string>();
@@ -31,14 +31,14 @@ export default function WizardFlow() {
   const onNavigate = async (e: WizardProps.NavigateDetail) => {
     setParseError(undefined);
     if (e.requestedStepIndex === 1) {
-      const isValid = await formMethods.trigger();
+      const isValid = await mapFormMethods.trigger();
       if (isValid) {
         setActiveStepIndex(e.requestedStepIndex);
       }
     } else if (e.requestedStepIndex === 2) {
       const isValid = await stepFormMethods.trigger();
       if (isValid) {
-        parse(formMethods.getValues(), stepFormMethods.getValues())
+        parse(mapFormMethods.getValues(), stepFormMethods.getValues())
           .then((data) => {
             setStepChart(data);
             setActiveStepIndex(e.requestedStepIndex);
@@ -54,14 +54,14 @@ export default function WizardFlow() {
 
   const onSubmit = () => {
     const stepOutputBuilder = new StepOutputBuilder(stepChart!, {
-      music: formMethods.getValues('musicFile'),
-      background: formMethods.getValues('backgroundFile'),
+      music: mapFormMethods.getValues('musicFile'),
+      background: mapFormMethods.getValues('backgroundFile'),
     });
     stepOutputBuilder.downloadZip();
   };
 
   return (
-    <FormProvider {...formMethods}>
+    <FormProvider {...mapFormMethods}>
       <Wizard
         i18nStrings={{
           stepNumberLabel: (stepNumber) => `Step ${stepNumber}`,

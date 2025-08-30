@@ -62,7 +62,7 @@ export default function StepCharts() {
             },
             {
               label: 'Offset',
-              value: stepChart.offset || '-',
+              value: stepChart.outputOffset || '-',
             },
             {
               label: 'Credit',

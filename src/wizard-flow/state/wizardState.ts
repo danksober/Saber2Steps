@@ -5,6 +5,7 @@ import type { Chart, StepChart } from '../../types/stepTypes';
 export const stepChartAtom = atom<StepChart | undefined>(undefined);
 export const mapIdAtom = atom<string | undefined>(undefined);
 
+// Audio playback configuration
 export type AudioState = 'playing' | 'paused' | 'stopped';
 export const audioStateAtom = atom<AudioState>('stopped');
 export const currentTimeAtom = atom(0);
