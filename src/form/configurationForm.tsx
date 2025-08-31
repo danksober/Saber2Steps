@@ -1,10 +1,11 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-
-type JumpMode = 'swing' | 'twohands' | 'both';
-type CrossoverMode = 'true' | 'false';
-type HandsMode = 'true' | 'false';
+import type { BaseStepConfiguration } from './stepConfigurationShared';
+import {
+  baseStepDefaultValues,
+  baseStepValidationSchema,
+} from './stepConfigurationShared';
 
 export interface SaberConfigurationFormState {
   infoFile: File;
@@ -14,16 +15,7 @@ export interface SaberConfigurationFormState {
   inputType: 'link' | 'manual';
 }
 
-export interface StepConfigurationFormState {
-  crossover: CrossoverMode;
-  hands: HandsMode;
-  jumpMode: JumpMode;
-  minGapForAutoSnapping: number;
-  minGapForCrossovers: number;
-  minGapForDoubleTap: number; // min double tap default 8th notes
-  minGapForJumps: number; // min gap for jumps default 8th notes otherwise the note will be single
-  minGapForTapJumps: number;
-  minGapForJumpTap: number; // min gap for tap right after a jump
+export interface StepConfigurationFormState extends BaseStepConfiguration {
   additionalOffset: number;
 }
 
@@ -47,18 +39,11 @@ const linkValidationSchema = Yup.object().shape({
     ),
 });
 
-const stepValidationSchema = Yup.object<StepConfigurationFormState>().shape({
-  crossover: Yup.string<CrossoverMode>().required(),
-  jumpMode: Yup.string<JumpMode>().required(),
-  hands: Yup.string<HandsMode>().required(),
-  minGapForCrossovers: Yup.number().min(4).max(32).required(),
-  minGapForDoubleTap: Yup.number().min(4).max(32).required(),
-  minGapForJumps: Yup.number().min(4).max(32).required(),
-  minGapForTapJumps: Yup.number().min(4).max(32).required(),
-  minGapForAutoSnapping: Yup.number().min(4).max(32).required(),
-  minGapForJumpTap: Yup.number().min(4).max(32).required(),
-  additionalOffset: Yup.number().required(),
-});
+const stepValidationSchema = baseStepValidationSchema.concat(
+  Yup.object<Pick<StepConfigurationFormState, 'additionalOffset'>>()
+    .shape({ additionalOffset: Yup.number().required() })
+    .required(),
+);
 
 interface LinkFormState {
   mapLink: string;
@@ -75,18 +60,10 @@ export const useLinkForm = () => {
 export const useStepConfigForm = () => {
   const useFormReturn = useForm<StepConfigurationFormState>({
     defaultValues: {
-      jumpMode: 'swing',
-      minGapForDoubleTap: 4,
-      minGapForTapJumps: 8,
-      minGapForJumpTap: 8,
-      minGapForJumps: 8,
-      minGapForCrossovers: 4,
-      minGapForAutoSnapping: 24,
-      crossover: 'false',
-      hands: 'false',
+      ...baseStepDefaultValues,
       additionalOffset: 0.009,
     },
-    resolver: yupResolver(stepValidationSchema),
+    resolver: yupResolver(stepValidationSchema) as any,
   });
   return useFormReturn;
 };
