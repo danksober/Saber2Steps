@@ -1,3 +1,6 @@
+import type { StepConfigurationFormState } from '../form/configurationForm';
+import type { MapDataV2 } from './mapTypes';
+
 export type Measure = string[][];
 
 export interface StepChart {
@@ -18,6 +21,8 @@ export interface StepChart {
 }
 
 export interface Chart {
+  mapData?: MapDataV2;
+  stepConfig?: StepConfigurationFormState;
   type: 'dance-single' | 'dance-double';
   name: string;
   meter: string;

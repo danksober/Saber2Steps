@@ -2,7 +2,7 @@ import type { StepConfigurationFormState } from '../form/configurationForm';
 import type { NoteV2 } from '../types/mapTypes';
 import type { Chart, Measure, StepChart } from '../types/stepTypes';
 
-type StepBuilderConfig = Omit<StepChart, 'charts'> & {
+export type StepBuilderConfig = Omit<StepChart, 'charts'> & {
   mapNotes: NoteV2[];
   difficultyName: string;
   meter: string;

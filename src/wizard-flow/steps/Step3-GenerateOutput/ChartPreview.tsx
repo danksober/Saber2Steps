@@ -1,15 +1,14 @@
 import {
-  Button,
   Container,
   ExpandableSection,
   Header,
-  Input,
   KeyValuePairs,
   SpaceBetween,
 } from '@cloudscape-design/components';
 import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ChartConfigurationFormState } from '../../../form/chartConfigurationForm';
+import { StepBuilder } from '../../../parser/StepBuilder';
 import type { Chart } from '../../../types/stepTypes';
 import { stepChartAtom } from '../../state/wizardState';
 import AudioController from './AudioController';
@@ -23,22 +22,50 @@ interface ChartPreviewProps {
 }
 
 export default function ChartPreview({ chart }: ChartPreviewProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [difficulty, setDifficulty] = useState(chart.meter);
   const [isConfigExpanded, setIsConfigExpanded] = useState(false);
-  const [individualConfig, setIndividualConfig] = useState<
-    ChartConfigurationFormState | undefined
-  >(undefined);
-  const [stepChart, setStepChart] = useAtom(stepChartAtom);
-
-  useEffect(() => {
-    setDifficulty(chart.meter);
-  }, [chart.meter]);
+  const [, setStepChart] = useAtom(stepChartAtom);
 
   const notes = chart.notes;
 
   const handleConfigSave = (config: ChartConfigurationFormState) => {
-    setIndividualConfig(config);
+    setStepChart((prev) => {
+      if (!prev) return prev;
+      const editingChartIndex = prev.charts.findIndex(
+        (c) => c.name === chart.name,
+      );
+      const editingChart = prev.charts[editingChartIndex];
+      if (!editingChart) return prev;
+      const { charts: prevCharts, ...prevConfig } = prev;
+      const stepConfig = {
+        ...config,
+        additionalOffset: editingChart.stepConfig?.additionalOffset ?? 0.009,
+      };
+      const stepBuilder = new StepBuilder({
+        ...prevConfig,
+        ...stepConfig,
+        additionalOffset: editingChart.stepConfig?.additionalOffset ?? 0.009,
+        mapNotes: editingChart.mapData?._notes || [],
+        difficultyName: editingChart.name,
+        meter:
+          config.difficulty !== undefined
+            ? String(config.difficulty)
+            : editingChart.meter,
+      });
+      const newChart = {
+        ...stepBuilder.build(),
+        mapData: editingChart.mapData,
+        stepConfig,
+      };
+      const newCharts = [
+        ...prevCharts.slice(0, editingChartIndex),
+        newChart,
+        ...prevCharts.slice(editingChartIndex + 1),
+      ];
+      return {
+        ...prev,
+        charts: newCharts,
+      };
+    });
     setIsConfigExpanded(false);
   };
 
@@ -49,42 +76,7 @@ export default function ChartPreview({ chart }: ChartPreviewProps) {
   return (
     <SpaceBetween direction="vertical" size="l">
       <AudioController />
-      <Container
-        header={
-          <Header
-            variant="h2"
-            actions={
-              <SpaceBetween direction="horizontal" size="xs">
-                <Button onClick={() => setIsConfigExpanded(!isConfigExpanded)}>
-                  {isConfigExpanded ? 'Hide' : 'Configure'} Chart
-                </Button>
-                <Button
-                  onClick={() => {
-                    if (isEditing) {
-                      setStepChart((prev) => {
-                        if (!prev) return prev;
-                        return {
-                          ...prev,
-                          charts: prev.charts.map((c) =>
-                            c.name === chart.name
-                              ? { ...c, meter: difficulty }
-                              : c,
-                          ),
-                        };
-                      });
-                    }
-                    setIsEditing(!isEditing);
-                  }}
-                >
-                  {isEditing ? 'Save' : 'Edit'}
-                </Button>
-              </SpaceBetween>
-            }
-          >
-            Chart info
-          </Header>
-        }
-      >
+      <Container header={<Header variant="h2">Chart info</Header>}>
         <KeyValuePairs
           columns={3}
           items={[
@@ -96,18 +88,7 @@ export default function ChartPreview({ chart }: ChartPreviewProps) {
               label: 'Type',
               value: chart.type || '-',
             },
-            {
-              label: 'Difficulty',
-              value: isEditing ? (
-                <Input
-                  type="number"
-                  value={difficulty?.toString() || ''}
-                  onChange={(event) => setDifficulty(event.detail.value)}
-                />
-              ) : (
-                chart.meter || '-'
-              ),
-            },
+            { label: 'Difficulty', value: chart.meter || '-' },
             {
               label: 'Tap',
               value: chart.tap || 0,
@@ -129,12 +110,13 @@ export default function ChartPreview({ chart }: ChartPreviewProps) {
       </Container>
 
       <ExpandableSection
-        header="Individual Chart Configuration"
+        variant="container"
+        headerText="Individual Chart Configuration"
         expanded={isConfigExpanded}
         onChange={({ detail }) => setIsConfigExpanded(detail.expanded)}
       >
         <ChartConfigurationComponent
-          defaultValues={individualConfig}
+          chart={chart}
           onSave={handleConfigSave}
           onCancel={handleConfigCancel}
           isExpanded={isConfigExpanded}

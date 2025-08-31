@@ -137,7 +137,11 @@ export class SaberParser {
       difficultyName: name,
       meter: '10',
     });
-    return stepBuilder.build();
+    return {
+      ...stepBuilder.build(),
+      mapData: data,
+      stepConfig: this.stepConfig,
+    };
   }
 
   private parseMapDataV3(data: MapDataV3) {
