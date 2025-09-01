@@ -204,14 +204,27 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
   const handleScroll = useCallback(
     (newScrollTop: number) => {
       if (beatsPerSecond > 0) {
-        const newTime = newScrollTop / (beatsPerSecond * paddingPerBeat);
+        // Map scrollTop back to audio time taking into account the output offset
+        // and the ITG offset so the visual position and audio time stay in sync.
+        const outputOffset = Number(stepChart?.outputOffset || '0');
+        const newTime =
+          newScrollTop / (beatsPerSecond * paddingPerBeat) -
+          outputOffset +
+          ITG_OFFSET;
         setCurrentTime(newTime);
         if (audioState === 'playing' || audioState === 'stopped') {
           setAudioState('paused');
         }
       }
     },
-    [beatsPerSecond, setCurrentTime, audioState, setAudioState, paddingPerBeat],
+    [
+      beatsPerSecond,
+      setCurrentTime,
+      audioState,
+      setAudioState,
+      paddingPerBeat,
+      stepChart,
+    ],
   );
 
   // Handle manual scroll events
@@ -224,12 +237,27 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
+
+      // Normalize wheel direction across devices so "wheel up" reduces scroll.
+      const delta = event.deltaY;
+
       const currentScroll = autoScrollOffset;
-      const newScroll = currentScroll + event.deltaY;
-      const clampedScroll = Math.max(
-        0,
-        Math.min(newScroll, totalChartHeight - CONTAINER_HEIGHT),
-      );
+      const newScroll = currentScroll + delta;
+
+      // Allow negative scrolls down to one container height above start so
+      // pre-offset audio is reachable, and clamp to the bottom of the chart.
+      const minScroll = -CONTAINER_HEIGHT;
+      const maxScroll = Math.max(0, totalChartHeight - CONTAINER_HEIGHT);
+      const clampedScroll = Math.max(minScroll, Math.min(newScroll, maxScroll));
+
+      console.log(clampedScroll, 'clampedScroll');
+      console.log(newScroll, 'newScroll');
+      console.log(currentScroll, 'currentScroll');
+      console.log(delta, 'delta');
+      console.log(totalChartHeight, 'totalChartHeight');
+      console.log(CONTAINER_HEIGHT, 'CONTAINER_HEIGHT');
+      console.log(event.deltaY, 'event.deltaY');
+
       handleScroll(clampedScroll);
     };
 

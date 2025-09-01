@@ -68,8 +68,14 @@ export default function CustomScrollbar({
     20, // Min height
     (clientHeight / scrollHeight) * clientHeight,
   );
-  const thumbTop =
-    (scrollTop / (scrollHeight - clientHeight)) * (clientHeight - thumbHeight);
+
+  // Protect against out-of-range scrollTop (including negative) and zero division.
+  const scrollRange = Math.max(1, scrollHeight - clientHeight);
+  const rawThumbTop = (scrollTop / scrollRange) * (clientHeight - thumbHeight);
+  const thumbTop = Math.max(
+    0,
+    Math.min(rawThumbTop, clientHeight - thumbHeight),
+  );
 
   return (
     <ScrollbarTrack style={{ height: `${clientHeight}px` }}>
