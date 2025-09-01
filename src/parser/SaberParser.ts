@@ -5,6 +5,7 @@ import type {
 } from '../form/configurationForm';
 import type { MapDataV2, MapDataV3, MapInfoDataV2 } from '../types/mapTypes';
 import type { StepChart } from '../types/stepTypes';
+import { ITG_OFFSET } from '../wizard-flow/constants/offset';
 import { StepBuilder } from './StepBuilder';
 
 const ITG_LEVEL_MAP = ['Challenge', 'Hard', 'Medium', 'Easy', 'Beginner'];
@@ -24,7 +25,9 @@ export const useParseSaber = () => {
     stepFile.background = saberFormState.backgroundFile?.name;
     stepFile.music = saberFormState.musicFile.name;
     stepFile.outputOffset = (
-      Number(stepFile.offset || '0') + Number(stepFormState.additionalOffset)
+      Number(stepFile.offset || '0') +
+      stepFormState.additionalOffset +
+      ITG_OFFSET
     ).toString();
 
     return stepFile;

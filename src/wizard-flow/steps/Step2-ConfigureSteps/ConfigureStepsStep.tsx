@@ -22,7 +22,7 @@ export default function StepConfiguration() {
                   {...field}
                   type="number"
                   step={0.001}
-                  value={(field.value || '').toString()}
+                  value={(field.value ?? '').toString()}
                   onChange={(e) => field.onChange(e.detail.value)}
                 />
               </FormField>

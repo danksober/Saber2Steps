@@ -46,7 +46,7 @@ export default function ChartPreview({ chart }: ChartPreviewProps) {
       const { charts: prevCharts, ...prevConfig } = prev;
       // compute baseline additional offset from existing chart or default
       const baseAdditionalOffset =
-        editingChart.stepConfig?.additionalOffset ?? ITG_OFFSET;
+        editingChart.stepConfig?.additionalOffset ?? 0;
 
       // compute timing difference introduced by shifting (in seconds)
       // prefer the global bpms, fall back to map info bpm when available
@@ -105,6 +105,11 @@ export default function ChartPreview({ chart }: ChartPreviewProps) {
       return {
         ...prev,
         charts: newCharts,
+        outputOffset: (
+          Number(prev.outputOffset || '0') +
+          shiftTiming +
+          ITG_OFFSET
+        ).toString(),
       };
     });
     setIsConfigExpanded(false);

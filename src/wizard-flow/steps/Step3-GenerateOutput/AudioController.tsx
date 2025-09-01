@@ -2,6 +2,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { getNoteTimestamps } from '../../../parser/getNoteTimestamps';
+import { ITG_OFFSET } from '../../constants/offset';
 import {
   activeChartAtom,
   audioStateAtom,
@@ -99,7 +100,7 @@ export default function AudioController() {
     if (!activeChart || !stepChart) return [];
 
     const bpm = parseFloat(stepChart.bpms.split(',')[0]);
-    const offset = parseFloat(stepChart.offset || '0');
+    const offset = parseFloat(stepChart.outputOffset || '0') - ITG_OFFSET;
     if (Number.isNaN(bpm)) return [];
 
     return getNoteTimestamps(activeChart.notes, bpm, offset);

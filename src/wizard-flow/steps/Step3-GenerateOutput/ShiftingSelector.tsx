@@ -6,7 +6,7 @@ interface Props {
   onChange?: (value: number | null, direction: 'forward' | 'backward') => void;
 }
 
-const positions = [-32, -24, -16, -12, -8, -4, 0, 4, 8, 12, 16, 24, 32];
+const positions = [-4, -8, -12, -16, -24, -32, 0, 32, 24, 16, 12, 8, 4];
 
 export default function ShiftingSelector({ defaultValue, onChange }: Props) {
   const defaultIndex =
@@ -16,7 +16,6 @@ export default function ShiftingSelector({ defaultValue, onChange }: Props) {
   const handleChange = (value: number) => {
     setIndex(value);
     const val = positions[value];
-    console.log(val);
     if (onChange)
       onChange(
         val === 0 ? null : Math.abs(val),

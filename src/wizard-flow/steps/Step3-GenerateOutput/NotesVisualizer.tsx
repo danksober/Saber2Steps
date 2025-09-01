@@ -16,6 +16,7 @@ import {
   scrollSpeedAtom,
   stepChartAtom,
 } from '../../../wizard-flow/state/wizardState';
+import { ITG_OFFSET } from '../../constants/offset';
 import CustomScrollbar from './CustomScrollbar';
 
 interface StepNotesVisualProps {
@@ -195,7 +196,10 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
   const paddingPerBeat = (CONTAINER_HEIGHT / 8) * (scrollSpeed / bpm);
 
   const beatsPerSecond = bpm / 60;
-  const autoScrollOffset = currentTime * beatsPerSecond * paddingPerBeat;
+  const autoScrollOffset =
+    (currentTime + Number(stepChart?.outputOffset || '0') - ITG_OFFSET) *
+    beatsPerSecond *
+    paddingPerBeat;
 
   const handleScroll = useCallback(
     (newScrollTop: number) => {
