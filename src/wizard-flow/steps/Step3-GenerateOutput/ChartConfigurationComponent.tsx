@@ -7,6 +7,7 @@ import {
   Input,
   SpaceBetween,
 } from '@cloudscape-design/components';
+import { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import {
   type ChartConfigurationFormState,
@@ -14,13 +15,21 @@ import {
 } from '../../../form/chartConfigurationForm';
 import type { Chart } from '../../../types/stepTypes';
 import SharedStepFields from '../Shared/SharedStepFields';
+import ShiftingSelector from './ShiftingSelector';
 
 interface ChartConfigurationComponentProps {
   chart: Chart;
-  onSave: (data: ChartConfigurationFormState) => void;
+  onSave: (
+    data: ChartConfigurationFormState & {
+      shifting?: number | null;
+      shiftingDirection?: 'forward' | 'backward' | undefined;
+    },
+  ) => void;
   onCancel: () => void;
   isExpanded: boolean;
 }
+
+// shifting options removed; selector is implemented via ShiftingSelector component
 
 export default function ChartConfigurationComponent({
   chart,
@@ -33,7 +42,7 @@ export default function ChartConfigurationComponent({
     difficulty: Number.isNaN(Number(chart.meter))
       ? undefined
       : Number(chart.meter),
-  } as Partial<ChartConfigurationFormState>;
+  } as Partial<ChartConfigurationFormState & { shifting?: number | null }>;
 
   const {
     control,
@@ -41,8 +50,20 @@ export default function ChartConfigurationComponent({
     formState: { errors },
   } = useChartConfigurationForm(defaultValues);
 
+  const [localShifting, setLocalShifting] = useState<number | null>(null);
+  const [localShiftingDirection, setLocalShiftingDirection] = useState<
+    'forward' | 'backward'
+  >('forward');
+
   const onSubmit = (data: ChartConfigurationFormState) => {
-    onSave(data);
+    // Merge transient shifting values into the submitted payload but do not
+    // persist them into the form's default values. Parent handles one-time
+    // application when it receives these fields.
+    onSave({
+      ...data,
+      shifting: localShifting ?? undefined,
+      shiftingDirection: localShifting ? localShiftingDirection : undefined,
+    });
   };
 
   if (!isExpanded) {
@@ -82,6 +103,18 @@ export default function ChartConfigurationComponent({
                     }
                   />
                 )}
+              />
+            </FormField>
+            <FormField
+              label="Shifting"
+              description="One-time shift: affects the generated preview only and is not saved to the chart"
+            >
+              {/* local state so changes are one-time and not persisted to form */}
+              <ShiftingSelector
+                onChange={(val, dir) => {
+                  setLocalShifting(val);
+                  setLocalShiftingDirection(dir);
+                }}
               />
             </FormField>
           </SpaceBetween>

@@ -1,6 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import { ITG_OFFSET } from '../wizard-flow/constants/offset';
 import type { BaseStepConfiguration } from './stepConfigurationShared';
 import {
   baseStepDefaultValues,
@@ -61,7 +62,7 @@ export const useStepConfigForm = () => {
   const useFormReturn = useForm<StepConfigurationFormState>({
     defaultValues: {
       ...baseStepDefaultValues,
-      additionalOffset: 0.009,
+      additionalOffset: ITG_OFFSET,
     },
     resolver: yupResolver(stepValidationSchema) as any,
   });

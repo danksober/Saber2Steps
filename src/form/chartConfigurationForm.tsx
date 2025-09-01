@@ -12,7 +12,9 @@ export interface ChartConfigurationFormState extends BaseStepConfiguration {
 }
 
 const chartConfigurationValidationSchema = baseStepValidationSchema.concat(
-  Yup.object().shape({ difficulty: Yup.number().optional() }),
+  Yup.object().shape({
+    difficulty: Yup.number().optional(),
+  }),
 );
 
 export const useChartConfigurationForm = (

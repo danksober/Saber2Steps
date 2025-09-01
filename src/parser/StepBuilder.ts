@@ -1,11 +1,11 @@
 import type { StepConfigurationFormState } from '../form/configurationForm';
 import type { NoteV2 } from '../types/mapTypes';
 import type { Chart, Measure, StepChart } from '../types/stepTypes';
+import { ITG_OFFSET } from '../wizard-flow/constants/offset';
 
 export type StepBuilderConfig = Omit<StepChart, 'charts'> & {
   mapNotes: NoteV2[];
   difficultyName: string;
-  meter: string;
 } & StepConfigurationFormState;
 
 const DEFAULT_BEATS_PER_MEASURE = 4;
@@ -72,8 +72,22 @@ export class StepBuilder {
     return this.config.bpms;
   }
 
+  private applyAdditionalOffset(notes: NoteV2[]) {
+    // additionalOffset is stored in seconds; StepBuilder times are in beats.
+    // Convert seconds -> beats using bpm: beats = seconds * (bpm / 60)
+    const bpm = Number(this.getBpm()) || 120;
+    const offsetSeconds =
+      (this.config.additionalOffset ?? ITG_OFFSET) - ITG_OFFSET;
+    const offsetInBeats = offsetSeconds * (bpm / 60);
+    return notes.map((note) => ({
+      ...note,
+      _time: note._time + offsetInBeats,
+    }));
+  }
+
   private mapToChart(notes: NoteV2[]) {
-    const stepNotes = this.buildV2StepNotes(notes);
+    console.log(notes);
+    const stepNotes = this.buildV2StepNotes(this.applyAdditionalOffset(notes));
     const chart: Chart = {
       type: 'dance-single',
       meter: this.getChartDifficulty(stepNotes).toString(),

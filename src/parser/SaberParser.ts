@@ -135,7 +135,6 @@ export class SaberParser {
       ...this.stepConfig,
       mapNotes: data._notes,
       difficultyName: name,
-      meter: '10',
     });
     return {
       ...stepBuilder.build(),
