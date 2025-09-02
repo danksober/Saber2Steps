@@ -18,6 +18,42 @@ const noteGapOptions = [
   { value: '32', label: '32nd notes' },
 ];
 
+const lookbackSizeOptions = [
+  { value: '5', label: '5 notes' },
+  { value: '10', label: '10 notes' },
+  { value: '20', label: '20 notes' },
+  { value: '30', label: '30 notes' },
+  { value: '40', label: '40 notes' },
+  { value: '50', label: '50 notes' },
+];
+
+const randomnessScoreItems = [
+  {
+    value: 'none',
+    label: 'None',
+    description:
+      'No randomness applied. Steps will be placed based on rules only.',
+  },
+  {
+    value: 'low',
+    label: 'Low',
+    description:
+      'Slightly randomize step placement to avoid repetitive patterns.',
+  },
+  {
+    value: 'medium',
+    label: 'Medium',
+    description:
+      'Balanced randomization to create more varied and interesting patterns.',
+  },
+  {
+    value: 'high',
+    label: 'High',
+    description:
+      'Aggressively randomize step placement for maximum pattern variety.',
+  },
+];
+
 const getNoteSelectionLabel = (value: number) =>
   `${value}${value !== 32 ? 'th' : 'nd'} notes`;
 
@@ -57,6 +93,55 @@ export default function SharedStepFields({
             )}
           />
           {renderParserExtras}
+        </SpaceBetween>
+      </Container>
+
+      <Container
+        header={
+          <Header
+            variant="h2"
+            description="Configure randomness options for step generation"
+          >
+            Randomness options
+          </Header>
+        }
+      >
+        <SpaceBetween size="l">
+          <Controller
+            control={control}
+            name="lookbackSize"
+            render={({ field }) => (
+              <FormField
+                label="Lookback size"
+                description="The number of previous notes to consider when checking for randomness. Larger sizes prevent long-term patterns."
+              >
+                <Select
+                  selectedOption={{
+                    value: field.value?.toString(),
+                    label: `${field.value} notes`,
+                  }}
+                  options={lookbackSizeOptions}
+                  onChange={({ detail }) =>
+                    field.onChange(+detail.selectedOption.value!)
+                  }
+                />
+              </FormField>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="randomnessScore"
+            render={({ field }) => (
+              <FormField label="Randomness intensity">
+                <RadioGroup
+                  value={field.value as any}
+                  onChange={(e) => field.onChange(e.detail.value)}
+                  items={randomnessScoreItems}
+                />
+              </FormField>
+            )}
+          />
         </SpaceBetween>
       </Container>
 

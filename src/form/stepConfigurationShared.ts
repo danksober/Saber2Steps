@@ -3,6 +3,8 @@ import * as Yup from 'yup';
 export type JumpMode = 'swing' | 'twohands' | 'both';
 export type CrossoverMode = 'true' | 'false';
 export type HandsMode = 'true' | 'false';
+export type LookbackSize = 5 | 10 | 20 | 30 | 40 | 50;
+export type RandomnessScore = 'none' | 'low' | 'medium' | 'high';
 
 export interface BaseStepConfiguration {
   crossover: CrossoverMode;
@@ -14,6 +16,8 @@ export interface BaseStepConfiguration {
   minGapForJumps: number;
   minGapForTapJumps: number;
   minGapForJumpTap: number;
+  lookbackSize: LookbackSize;
+  randomnessScore: RandomnessScore;
 }
 
 export const baseStepDefaultValues: BaseStepConfiguration = {
@@ -26,6 +30,8 @@ export const baseStepDefaultValues: BaseStepConfiguration = {
   minGapForJumps: 8,
   minGapForTapJumps: 8,
   minGapForJumpTap: 8,
+  lookbackSize: 30,
+  randomnessScore: 'none',
 };
 
 export const baseStepValidationSchema =
@@ -39,4 +45,8 @@ export const baseStepValidationSchema =
     minGapForTapJumps: Yup.number().min(4).max(32).required(),
     minGapForAutoSnapping: Yup.number().min(4).max(32).required(),
     minGapForJumpTap: Yup.number().min(4).max(32).required(),
+    lookbackSize: Yup.number().oneOf([5, 10, 20, 30, 40, 50]).required(),
+    randomnessScore: Yup.string()
+      .oneOf(['none', 'low', 'medium', 'high'])
+      .required(),
   });

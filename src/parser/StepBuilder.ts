@@ -1,6 +1,7 @@
 import type { StepConfigurationFormState } from '../form/configurationForm';
 import type { NoteV2 } from '../types/mapTypes';
 import type { Chart, Measure, StepChart } from '../types/stepTypes';
+import { stepLocationBuilder } from './StepLocationBuilder';
 
 export type StepBuilderConfig = Omit<StepChart, 'charts'> & {
   mapNotes: NoteV2[];
@@ -52,7 +53,6 @@ export class StepBuilder {
   private mines: number = 0;
   private hands: number = 0;
   private hold: number = 0;
-
   private _fractions: number[] = [];
   constructor(StepConfig: StepBuilderConfig) {
     this.config = StepConfig;
@@ -167,110 +167,32 @@ export class StepBuilder {
     }
   }
 
-  private _previousTimeNotes: { note: string[] | undefined; time: number } = {
-    note: undefined,
-    time: -1,
-  };
+  private _lookbackBuffer: { note: string[]; time: number }[] = [];
 
   private _previousFoot: 'left' | 'right' | undefined = undefined;
-
   private getLocationForNotes(
-    previousPositions: number[],
     currentLocations: number[],
     beatGap: number,
   ): number[] {
-    const {
-      crossover,
-      hands,
-      minGapForCrossovers,
-      minGapForDoubleTap,
-      minGapForTapJumps,
-      minGapForJumpTap,
-      minGapForJumps,
-    } = this.config;
-    if (currentLocations.length === 1) {
-      if (
-        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForDoubleTap! &&
-        previousPositions.join('') === currentLocations.join('')
-      ) {
-        currentLocations[0] = (currentLocations[0] + 1) % 4;
-        return this.getLocationForNotes(
-          previousPositions,
-          currentLocations,
-          beatGap,
-        );
-      } else if (
-        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumpTap! &&
-        previousPositions.length > 1
-      ) {
-        return [];
-      } else if (
-        crossover === 'false' ||
-        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForCrossovers!
-      ) {
-        let currentFoot: 'left' | 'right' | undefined;
-        if (currentLocations[0] === 0) {
-          currentFoot = 'left';
-        } else if (currentLocations[0] === 3) {
-          currentFoot = 'right';
-        }
-        if (this._previousFoot && this._previousFoot === currentFoot) {
-          currentLocations[0] = (currentLocations[0] + 1) % 4;
-          return this.getLocationForNotes(
-            previousPositions,
-            currentLocations,
-            beatGap,
-          );
-        }
-      }
-      // is double tap foot location unchanged
-      if (previousPositions.join('') === currentLocations.join('')) {
-        this._previousFoot = this._previousFoot;
-      } else {
-        if (currentLocations[0] === 0) {
-          this._previousFoot = 'left';
-        } else if (currentLocations[0] === 3) {
-          this._previousFoot = 'right';
-        } else {
-          this._previousFoot = this._previousFoot === 'left' ? 'right' : 'left';
-        }
-      }
-      return currentLocations;
-    } else if (currentLocations.length >= 2) {
-      if (hands === 'false') {
-        currentLocations = currentLocations.slice(0, 2);
-      }
-      if (
-        previousPositions.length > 1 &&
-        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForJumps!
-      ) {
-        currentLocations = currentLocations.slice(0, 1);
-        return this.getLocationForNotes(
-          previousPositions,
-          currentLocations,
-          beatGap,
-        );
-      } else if (
-        previousPositions.length === 1 &&
-        beatGap < DEFAULT_BEATS_PER_MEASURE / minGapForTapJumps!
-      ) {
-        currentLocations = currentLocations.slice(0, 1);
-        return this.getLocationForNotes(
-          previousPositions,
-          currentLocations,
-          beatGap,
-        );
-      } else {
-        return currentLocations;
-      }
-    }
-    return currentLocations;
+    const previousFoot = { value: this._previousFoot };
+    const locations = stepLocationBuilder(
+      this.config,
+      this._lookbackBuffer,
+      currentLocations,
+      beatGap,
+      previousFoot,
+    );
+    this._previousFoot = previousFoot.value;
+    return locations;
   }
 
   private buildNotes(currentTimeNotes: NoteV2[]) {
     let beatGap = Number.MAX_SAFE_INTEGER;
-    if (this._previousTimeNotes.time > 0) {
-      beatGap = currentTimeNotes[0]._time - this._previousTimeNotes.time;
+    const lastBufferEntry = this._lookbackBuffer.length
+      ? this._lookbackBuffer[this._lookbackBuffer.length - 1]
+      : undefined;
+    if (lastBufferEntry) {
+      beatGap = currentTimeNotes[0]._time - lastBufferEntry.time;
     }
     const notes = ['0', '0', '0', '0'];
     let currentLocations: number[] = [];
@@ -322,18 +244,8 @@ export class StepBuilder {
         currentLocations = twoHandIndices;
       }
     }
-    const previousPositions: number[] = [];
-    (this._previousTimeNotes.note || []).forEach((_note, index) => {
-      if (_note === '1') {
-        previousPositions.push(index);
-      }
-    });
 
-    const locations = this.getLocationForNotes(
-      previousPositions,
-      currentLocations,
-      beatGap,
-    );
+    const locations = this.getLocationForNotes(currentLocations, beatGap);
     if (locations.length > 1) {
       this._previousFoot = undefined;
     }
@@ -380,7 +292,12 @@ export class StepBuilder {
         const note = this.buildNotes(possibleNotes);
         measure.push(note);
         if (note.find((n) => n === '1')) {
-          this._previousTimeNotes = { note, time: start };
+          // push final placement to lookback buffer so later notes can reference it
+          this._lookbackBuffer.push({ note, time: start });
+          const lookbackSize = this.config.lookbackSize || 30;
+          while (this._lookbackBuffer.length > lookbackSize) {
+            this._lookbackBuffer.shift();
+          }
         }
       } else {
         measure.push(['0', '0', '0', '0']);

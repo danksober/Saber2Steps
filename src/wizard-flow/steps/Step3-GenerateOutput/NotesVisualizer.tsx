@@ -250,14 +250,6 @@ export default function StepNotesVisual({ measures }: StepNotesVisualProps) {
       const maxScroll = Math.max(0, totalChartHeight - CONTAINER_HEIGHT);
       const clampedScroll = Math.max(minScroll, Math.min(newScroll, maxScroll));
 
-      console.log(clampedScroll, 'clampedScroll');
-      console.log(newScroll, 'newScroll');
-      console.log(currentScroll, 'currentScroll');
-      console.log(delta, 'delta');
-      console.log(totalChartHeight, 'totalChartHeight');
-      console.log(CONTAINER_HEIGHT, 'CONTAINER_HEIGHT');
-      console.log(event.deltaY, 'event.deltaY');
-
       handleScroll(clampedScroll);
     };
 

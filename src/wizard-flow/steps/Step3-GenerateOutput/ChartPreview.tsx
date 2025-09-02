@@ -106,9 +106,7 @@ export default function ChartPreview({ chart }: ChartPreviewProps) {
         ...prev,
         charts: newCharts,
         outputOffset: (
-          Number(prev.outputOffset || '0') +
-          shiftTiming +
-          ITG_OFFSET
+          Number(prev.outputOffset || '0') + shiftTiming
         ).toString(),
       };
     });
